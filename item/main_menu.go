@@ -52,7 +52,7 @@ func (m *MainMenu) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
 		}
 	}
 
-	terminal.Clear(m.screen)
+	terminal.ClearScreen(m.screen)
 
 	for i, subMenus := range m.subMenus {
 		fmt.Fprint(m.screen, "* ")

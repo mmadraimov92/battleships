@@ -41,7 +41,7 @@ func (t *timer) Render(ctx context.Context) {
 			time.Sleep(2 * time.Second)
 			return
 		case <-time.Tick(interval):
-			terminal.Clear(t.screen)
+			terminal.ClearScreen(t.screen)
 			fmt.Fprintln(t.screen, d)
 			d += interval
 		}

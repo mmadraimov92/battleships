@@ -7,7 +7,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func Clear(w io.Writer) {
+func ClearScreen(w io.Writer) {
 	w.Write(clearSequence)
 }
 
