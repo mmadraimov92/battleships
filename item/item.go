@@ -20,7 +20,6 @@ func NewMainMenu(w io.Writer, inputChan chan terminal.KeyEvent, cancel context.C
 
 	exit := exit{
 		screen: w,
-		input:  inputChan,
 		cancel: cancel,
 	}
 

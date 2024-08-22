@@ -4,13 +4,10 @@ import (
 	"context"
 	"fmt"
 	"io"
-
-	"tui/terminal"
 )
 
 type exit struct {
 	screen io.Writer
-	input  chan terminal.KeyEvent
 	cancel context.CancelFunc
 }
 
