@@ -33,7 +33,7 @@ func (t *timer) Render(ctx context.Context) {
 	}()
 
 	var d time.Duration
-	interval := 10 * time.Millisecond
+	interval := 50 * time.Millisecond
 	for {
 		select {
 		case <-ctx.Done():
