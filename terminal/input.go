@@ -42,11 +42,10 @@ var (
 	}
 )
 
-func HandleKeyboardInput(ctx context.Context, input chan KeyEvent) {
+func HandleKeyboardInput(ctx context.Context, input chan KeyEvent) error {
 	oldState, err := makeRaw(int(os.Stdin.Fd()))
 	if err != nil {
-		fmt.Println(err)
-		return
+		return fmt.Errorf("HandleKeyboardInput: %w", err)
 	}
 	defer restore(int(os.Stdin.Fd()), oldState)
 
@@ -55,7 +54,7 @@ func HandleKeyboardInput(ctx context.Context, input chan KeyEvent) {
 	for {
 		select {
 		case <-ctx.Done():
-			return
+			return nil
 		case <-time.Tick(50 * time.Millisecond):
 			n, err := os.Stdin.Read(buf)
 			if err != nil {
