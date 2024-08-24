@@ -22,7 +22,6 @@ func New(w io.Writer, inputChan chan terminal.KeyEvent, cancel context.CancelFun
 	}
 
 	exit := exit{
-		screen: w,
 		cancel: cancel,
 	}
 
@@ -72,9 +71,8 @@ func (m *App) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
 
 	terminal.ClearScreen(m.screen)
 
-	for i, subMenus := range m.items {
-		fmt.Fprint(m.screen, "* ")
-		subMenus.Title()
+	for i, item := range m.items {
+		fmt.Fprintf(m.screen, "* %s", item.Title())
 		if i == int(m.selectedItemIndex) {
 			fmt.Fprint(m.screen, " <-")
 		}

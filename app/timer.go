@@ -48,6 +48,6 @@ func (t *timer) Render(ctx context.Context) {
 	}
 }
 
-func (t *timer) Title() {
-	fmt.Fprint(t.screen, "Timer")
+func (t *timer) Title() string {
+	return "Timer"
 }
