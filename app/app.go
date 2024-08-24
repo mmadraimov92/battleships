@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"tui/battleships"
 	"tui/terminal"
 )
 
@@ -16,6 +17,8 @@ type App struct {
 }
 
 func New(w io.Writer, inputChan chan terminal.KeyEvent, cancel context.CancelFunc) *App {
+	battleships := battleships.New(w, inputChan)
+
 	timer := timer{
 		screen: w,
 		input:  inputChan,
@@ -28,7 +31,7 @@ func New(w io.Writer, inputChan chan terminal.KeyEvent, cancel context.CancelFun
 	return &App{
 		screen: w,
 		input:  inputChan,
-		items:  []Item{&timer, &exit},
+		items:  []Item{battleships, &timer, &exit},
 	}
 }
 
@@ -48,13 +51,13 @@ func (m *App) Run(ctx context.Context) {
 func (m *App) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
 	if pressedKey != nil {
 		switch *pressedKey {
-		case terminal.DownArrowKey:
+		case terminal.UpArrowKey:
 			if m.selectedItemIndex == 0 {
 				m.selectedItemIndex = uint8(len(m.items)) - 1
 			} else {
 				m.selectedItemIndex--
 			}
-		case terminal.UpArrowKey:
+		case terminal.DownArrowKey:
 			if m.selectedItemIndex == uint8(len(m.items))-1 {
 				m.selectedItemIndex = 0
 			} else {
