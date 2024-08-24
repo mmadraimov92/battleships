@@ -69,13 +69,14 @@ func (m *App) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
 		}
 	}
 
+	// todo: call write only once per frame
 	terminal.ClearScreen(m.screen)
 
 	for i, item := range m.items {
-		fmt.Fprintf(m.screen, "* %s", item.Title())
+		row := fmt.Sprintf("* %s", item.Title())
 		if i == int(m.selectedItemIndex) {
-			fmt.Fprint(m.screen, " <-")
+			row += " <-"
 		}
-		fmt.Fprint(m.screen, "\n")
+		fmt.Fprintln(m.screen, row)
 	}
 }
