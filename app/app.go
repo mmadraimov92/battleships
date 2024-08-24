@@ -1,4 +1,4 @@
-package item
+package app
 
 import (
 	"context"
@@ -8,14 +8,32 @@ import (
 	"tui/terminal"
 )
 
-type MainMenu struct {
+type App struct {
 	screen            io.Writer
 	input             chan terminal.KeyEvent
 	subMenus          []Item
 	selectedItemIndex uint8
 }
 
-func (m *MainMenu) Render(ctx context.Context) {
+func New(w io.Writer, inputChan chan terminal.KeyEvent, cancel context.CancelFunc) *App {
+	timer := timer{
+		screen: w,
+		input:  inputChan,
+	}
+
+	exit := exit{
+		screen: w,
+		cancel: cancel,
+	}
+
+	return &App{
+		screen:   w,
+		input:    inputChan,
+		subMenus: []Item{&timer, &exit},
+	}
+}
+
+func (m *App) Run(ctx context.Context) {
 	m.draw(ctx, nil)
 
 	for {
@@ -28,7 +46,7 @@ func (m *MainMenu) Render(ctx context.Context) {
 	}
 }
 
-func (m *MainMenu) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
+func (m *App) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
 	if pressedKey != nil {
 		switch *pressedKey {
 		case terminal.DownArrowKey:

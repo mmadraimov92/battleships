@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/signal"
 
-	"tui/item"
+	"tui/app"
 	"tui/terminal"
 )
 
@@ -18,10 +18,10 @@ func main() {
 	defer w.Close()
 
 	inputChan := make(chan terminal.KeyEvent, 1)
-	mainMenu := item.NewMainMenu(w, inputChan, cancel)
+	app := app.New(w, inputChan, cancel)
 
 	go func() {
-		mainMenu.Render(ctx)
+		app.Run(ctx)
 	}()
 
 	go func() {
