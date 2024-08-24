@@ -11,7 +11,7 @@ import (
 type App struct {
 	screen            io.Writer
 	input             chan terminal.KeyEvent
-	subMenus          []Item
+	items             []Item
 	selectedItemIndex uint8
 }
 
@@ -27,9 +27,9 @@ func New(w io.Writer, inputChan chan terminal.KeyEvent, cancel context.CancelFun
 	}
 
 	return &App{
-		screen:   w,
-		input:    inputChan,
-		subMenus: []Item{&timer, &exit},
+		screen: w,
+		input:  inputChan,
+		items:  []Item{&timer, &exit},
 	}
 }
 
@@ -51,18 +51,18 @@ func (m *App) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
 		switch *pressedKey {
 		case terminal.DownArrowKey:
 			if m.selectedItemIndex == 0 {
-				m.selectedItemIndex = uint8(len(m.subMenus)) - 1
+				m.selectedItemIndex = uint8(len(m.items)) - 1
 			} else {
 				m.selectedItemIndex--
 			}
 		case terminal.UpArrowKey:
-			if m.selectedItemIndex == uint8(len(m.subMenus))-1 {
+			if m.selectedItemIndex == uint8(len(m.items))-1 {
 				m.selectedItemIndex = 0
 			} else {
 				m.selectedItemIndex++
 			}
 		case terminal.EnterKey:
-			m.subMenus[m.selectedItemIndex].Render(ctx)
+			m.items[m.selectedItemIndex].Render(ctx)
 			m.draw(ctx, nil)
 			return
 		default:
@@ -72,7 +72,7 @@ func (m *App) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
 
 	terminal.ClearScreen(m.screen)
 
-	for i, subMenus := range m.subMenus {
+	for i, subMenus := range m.items {
 		fmt.Fprint(m.screen, "* ")
 		subMenus.Title()
 		if i == int(m.selectedItemIndex) {
