@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"tui/app"
 	"tui/terminal"
@@ -39,4 +40,5 @@ func main() {
 	<-ctx.Done()
 
 	fmt.Fprintln(w, "Exiting")
+	time.Sleep(100 * time.Millisecond) // give some time for all stdout to print, todo: remove later
 }
