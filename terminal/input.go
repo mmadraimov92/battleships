@@ -25,20 +25,24 @@ const (
 
 // https://en.wikipedia.org/wiki/ANSI_escape_code
 var (
-	control            = []byte{'\x1b', '\x5b'}
-	hideCursorSequence = append(control, []byte{'\x3f', '\x32', '\x35', '\x6c'}...)
-	showCursorSequence = append(control, []byte{'\x3f', '\x32', '\x35', '\x68'}...)
-	clearSequence      = append(control, []byte{'\x48', '\x1b', '\x5b', '\x32', '\x4a'}...)
+	control                    = []byte{0x1b, 0x5b}
+	hideCursorSequence         = append(control, []byte{0x3f, 0x32, 0x35, 0x6c}...)
+	showCursorSequence         = append(control, []byte{0x3f, 0x32, 0x35, 0x68}...)
+	clearSequence              = append(control, []byte{0x48, 0x1b, 0x5b, 0x32, 0x4a}...)
+	ResetSequence              = append(control, []byte{0x30, 0x6d}...)
+	UnderlineSequence          = append(control, []byte{0x34, 0x6d}...)
+	RightSideUnderlineSequence = append(control, []byte{0x36, 0x30, 0x6d}...)
+	VerticalBar                = []byte(string(rune('\u2502')))
 
 	keyMap = map[byte]KeyEvent{
-		'\x41': UpArrowKey,
-		'\x42': DownArrowKey,
-		'\x43': RightArrowKey,
-		'\x44': LeftArrowKey,
-		'\x7f': DeleteKey,
-		'\x1b': EscapeKey,
-		'\r':   EnterKey,
-		'\n':   EnterKey,
+		0x41: UpArrowKey,
+		0x42: DownArrowKey,
+		0x43: RightArrowKey,
+		0x44: LeftArrowKey,
+		0x7f: DeleteKey,
+		0x1b: EscapeKey,
+		0x0a: EnterKey,
+		0x0d: EnterKey,
 	}
 )
 
@@ -55,7 +59,7 @@ func HandleKeyboardInput(ctx context.Context, input chan KeyEvent) error {
 		select {
 		case <-ctx.Done():
 			return nil
-		case <-time.Tick(50 * time.Millisecond):
+		case <-time.Tick(20 * time.Millisecond):
 			n, err := os.Stdin.Read(buf)
 			if err != nil {
 				if errors.Is(err, syscall.EAGAIN) {
