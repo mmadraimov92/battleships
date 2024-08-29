@@ -6,14 +6,15 @@ import (
 	"io"
 
 	"tui/battleships"
+	"tui/cyclic"
 	"tui/terminal"
 )
 
 type App struct {
-	screen            io.Writer
-	input             chan terminal.KeyEvent
-	items             []Item
-	selectedItemIndex uint8
+	screen       io.Writer
+	input        chan terminal.KeyEvent
+	items        []Item
+	selectedItem *cyclic.Number
 }
 
 func New(w io.Writer, inputChan chan terminal.KeyEvent, cancel context.CancelFunc) *App {
@@ -28,10 +29,12 @@ func New(w io.Writer, inputChan chan terminal.KeyEvent, cancel context.CancelFun
 		cancel: cancel,
 	}
 
+	items := []Item{battleships, &timer, &exit}
 	return &App{
-		screen: w,
-		input:  inputChan,
-		items:  []Item{battleships, &timer, &exit},
+		screen:       w,
+		input:        inputChan,
+		items:        items,
+		selectedItem: cyclic.NewNumber(0, int8(len(items)-1)),
 	}
 }
 
@@ -49,22 +52,18 @@ func (m *App) Run(ctx context.Context) {
 }
 
 func (m *App) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
+	if ctx.Err() != nil {
+		return
+	}
+
 	if pressedKey != nil {
 		switch *pressedKey {
 		case terminal.UpArrowKey:
-			if m.selectedItemIndex == 0 {
-				m.selectedItemIndex = uint8(len(m.items)) - 1
-			} else {
-				m.selectedItemIndex--
-			}
+			m.selectedItem.Decrement()
 		case terminal.DownArrowKey:
-			if m.selectedItemIndex == uint8(len(m.items))-1 {
-				m.selectedItemIndex = 0
-			} else {
-				m.selectedItemIndex++
-			}
+			m.selectedItem.Increment()
 		case terminal.EnterKey:
-			m.items[m.selectedItemIndex].Render(ctx)
+			m.items[m.selectedItem.Current()].Render(ctx)
 			m.draw(ctx, nil)
 			return
 		default:
@@ -77,7 +76,7 @@ func (m *App) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
 
 	for i, item := range m.items {
 		row := fmt.Sprintf("* %s", item.Title())
-		if i == int(m.selectedItemIndex) {
+		if i == int(m.selectedItem.Current()) {
 			row += " <-"
 		}
 		fmt.Fprintln(m.screen, row)
