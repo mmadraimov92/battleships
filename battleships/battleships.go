@@ -2,9 +2,7 @@ package battleships
 
 import (
 	"context"
-	"fmt"
 	"io"
-	"time"
 
 	"tui/terminal"
 )
@@ -29,30 +27,20 @@ func (i *Item) Render(ctx context.Context) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case keyEvent := <-i.input:
-				if keyEvent == terminal.DeleteKey || keyEvent == terminal.EscapeKey {
-					cancel()
-					return
-				}
-			}
-		}
-	}()
-
-	terminal.ClearScreen(i.screen)
-	fmt.Fprintln(i.screen, "Battleships started")
+	myBoard := newBoard()
+	i.draw(myBoard)
 
 	for {
 		select {
 		case <-ctx.Done():
-			terminal.ClearScreen(i.screen)
-			fmt.Fprintln(i.screen, "Battleships stopped")
-			time.Sleep(time.Second)
 			return
+		case keyEvent := <-i.input:
+			if keyEvent == terminal.DeleteKey || keyEvent == terminal.EscapeKey {
+				cancel()
+				return
+			}
+			myBoard.handleKeyEvent(keyEvent)
+			i.draw(myBoard)
 		}
 	}
 }
