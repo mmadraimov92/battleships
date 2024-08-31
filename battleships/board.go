@@ -23,18 +23,7 @@ type cell struct {
 
 func newBoard() *board {
 	return &board{
-		cells: [10][10]cell{
-			{{destroyer, nil}, {destroyer, &statusHit}, {}, {}, {}, {}, {}, {}, {}, {}},
-			{{empty, &statusMiss}, {}, {}, {}, {}, {}, {}, {}, {}, {}},
-			{{}, {}, {cruiser, nil}, {cruiser, nil}, {}, {}, {}, {}, {}, {}},
-			{{}, {}, {}, {}, {}, {}, {}, {}, {}, {}},
-			{{}, {}, {}, {}, {}, {}, {submarine, nil}, {submarine, nil}, {}, {}},
-			{{}, {}, {}, {}, {}, {}, {}, {}, {}, {}},
-			{{}, {}, {}, {empty, &statusMiss}, {}, {}, {}, {}, {}, {}},
-			{{}, {}, {}, {}, {carrier, &statusHit}, {battleship, nil}, {battleship, nil}, {battleship, nil}, {}, {}},
-			{{}, {}, {}, {}, {carrier, nil}, {}, {}, {}, {}, {}},
-			{{}, {}, {}, {}, {carrier, nil}, {}, {}, {}, {}, {}},
-		},
+		cells:       [10][10]cell{},
 		selectedRow: cyclic.NewNumber(0, 9),
 		selectedCol: cyclic.NewNumber(0, 9),
 	}

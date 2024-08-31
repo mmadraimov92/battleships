@@ -27,8 +27,8 @@ func (i *Item) Render(ctx context.Context) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	myBoard := newBoard()
-	i.draw(myBoard)
+	g := newGame()
+	i.draw(g)
 
 	for {
 		select {
@@ -39,8 +39,8 @@ func (i *Item) Render(ctx context.Context) {
 				cancel()
 				return
 			}
-			myBoard.handleKeyEvent(keyEvent)
-			i.draw(myBoard)
+			g.handleKeyEvent(keyEvent)
+			i.draw(g)
 		}
 	}
 }

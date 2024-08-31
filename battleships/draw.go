@@ -21,10 +21,17 @@ var (
 	five    = byte(0x35)
 )
 
-func (i *Item) draw(b *board) {
+func (i *Item) draw(g *game) {
 	terminal.ClearScreen(i.screen)
 
-	screenBuf := []byte{space, space}
+	screenBuf := []byte{}
+	for range 8 {
+		screenBuf = append(screenBuf, space)
+	}
+	screenBuf = append(screenBuf, []byte("My board")...)
+	screenBuf = append(screenBuf, newLine)
+
+	screenBuf = append(screenBuf, []byte{space, space}...)
 	screenBuf = append(screenBuf, terminal.UnderlineSequence...)
 	for _, col := range cols {
 		screenBuf = append(screenBuf, []byte{col, space}...)
@@ -36,8 +43,8 @@ func (i *Item) draw(b *board) {
 		screenBuf = append(screenBuf, row)
 		screenBuf = append(screenBuf, terminal.VerticalBar...)
 		for j := range len(cols) {
-			symbolToDraw := cellSymbol(b.cellAt(i, j))
-			if i == int(b.selectedRow.Current()) && j == int(b.selectedCol.Current()) {
+			symbolToDraw := cellSymbol(g.myBoard.cellAt(i, j))
+			if i == int(g.myBoard.selectedRow.Current()) && j == int(g.myBoard.selectedCol.Current()) {
 				symbolToDraw = plus
 			}
 			screenBuf = append(screenBuf, []byte{symbolToDraw, space}...)
@@ -46,12 +53,16 @@ func (i *Item) draw(b *board) {
 	}
 
 	fmt.Fprintln(i.screen, string(screenBuf))
-	fmt.Fprintln(
-		i.screen,
-		"Selected:",
-		string(rows[b.selectedRow.Current()]),
-		string(cols[b.selectedCol.Current()]),
-	)
+	fmt.Fprintln(i.screen, g.mode)
+
+	if g.mode == Attack {
+		fmt.Fprintln(
+			i.screen,
+			"Select cell to attack:",
+			string(rows[g.myBoard.selectedRow.Current()]),
+			string(cols[g.myBoard.selectedCol.Current()]),
+		)
+	}
 }
 
 func cellSymbol(c *cell) byte {
