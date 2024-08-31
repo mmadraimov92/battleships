@@ -1,23 +1,10 @@
 package terminal
 
 import (
-	"io"
 	"syscall"
 
 	"golang.org/x/sys/unix"
 )
-
-func ClearScreen(w io.Writer) {
-	w.Write(clearSequence)
-}
-
-func HideCursor(w io.Writer) {
-	w.Write(hideCursorSequence)
-}
-
-func ShowCursor(w io.Writer) {
-	w.Write(showCursorSequence)
-}
 
 type state struct {
 	termios unix.Termios

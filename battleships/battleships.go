@@ -2,20 +2,17 @@ package battleships
 
 import (
 	"context"
-	"io"
 
 	"tui/terminal"
 )
 
 type Item struct {
-	screen io.Writer
-	input  chan terminal.KeyEvent
+	input chan terminal.KeyEvent
 }
 
-func New(w io.Writer, input chan terminal.KeyEvent) *Item {
+func New(input chan terminal.KeyEvent) *Item {
 	return &Item{
-		screen: w,
-		input:  input,
+		input: input,
 	}
 }
 

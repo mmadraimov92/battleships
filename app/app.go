@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-	"io"
 
 	"tui/battleships"
 	"tui/cyclic"
@@ -11,18 +10,16 @@ import (
 )
 
 type App struct {
-	screen       io.Writer
 	input        chan terminal.KeyEvent
 	items        []Item
 	selectedItem *cyclic.Number
 }
 
-func New(w io.Writer, inputChan chan terminal.KeyEvent, cancel context.CancelFunc) *App {
-	battleships := battleships.New(w, inputChan)
+func New(input chan terminal.KeyEvent, cancel context.CancelFunc) *App {
+	battleships := battleships.New(input)
 
 	timer := timer{
-		screen: w,
-		input:  inputChan,
+		input: input,
 	}
 
 	exit := exit{
@@ -31,8 +28,7 @@ func New(w io.Writer, inputChan chan terminal.KeyEvent, cancel context.CancelFun
 
 	items := []Item{battleships, &timer, &exit}
 	return &App{
-		screen:       w,
-		input:        inputChan,
+		input:        input,
 		items:        items,
 		selectedItem: cyclic.NewNumber(0, int8(len(items)-1)),
 	}
@@ -71,14 +67,14 @@ func (m *App) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
 		}
 	}
 
-	// todo: call write only once per frame
-	terminal.ClearScreen(m.screen)
-
+	terminal.ClearScreen()
 	for i, item := range m.items {
 		row := fmt.Sprintf("* %s", item.Title())
 		if i == int(m.selectedItem.Current()) {
 			row += " <-"
 		}
-		fmt.Fprintln(m.screen, row)
+		row += "\n"
+		terminal.Draw(row)
 	}
+	terminal.Flush()
 }

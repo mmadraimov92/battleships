@@ -23,28 +23,16 @@ const (
 	RightArrowKey
 )
 
-// https://en.wikipedia.org/wiki/ANSI_escape_code
-var (
-	control                    = []byte{0x1b, 0x5b}
-	hideCursorSequence         = append(control, []byte{0x3f, 0x32, 0x35, 0x6c}...)
-	showCursorSequence         = append(control, []byte{0x3f, 0x32, 0x35, 0x68}...)
-	clearSequence              = append(control, []byte{0x48, 0x1b, 0x5b, 0x32, 0x4a}...)
-	ResetSequence              = append(control, []byte{0x30, 0x6d}...)
-	UnderlineSequence          = append(control, []byte{0x34, 0x6d}...)
-	RightSideUnderlineSequence = append(control, []byte{0x36, 0x30, 0x6d}...)
-	VerticalBar                = []byte(string(rune('\u2502')))
-
-	keyMap = map[byte]KeyEvent{
-		0x41: UpArrowKey,
-		0x42: DownArrowKey,
-		0x43: RightArrowKey,
-		0x44: LeftArrowKey,
-		0x7f: DeleteKey,
-		0x1b: EscapeKey,
-		0x0a: EnterKey,
-		0x0d: EnterKey,
-	}
-)
+var keyMap = map[byte]KeyEvent{
+	0x41: UpArrowKey,
+	0x42: DownArrowKey,
+	0x43: RightArrowKey,
+	0x44: LeftArrowKey,
+	0x7f: DeleteKey,
+	0x1b: EscapeKey,
+	0x0a: EnterKey,
+	0x0d: EnterKey,
+}
 
 func HandleKeyboardInput(ctx context.Context, input chan KeyEvent) error {
 	oldState, err := makeRaw(int(os.Stdin.Fd()))

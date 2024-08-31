@@ -15,19 +15,18 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	w := os.Stdout
-	defer w.Close()
-
-	terminal.HideCursor(w)
-	defer terminal.ShowCursor(w)
+	terminal.HideCursor()
+	defer terminal.ShowCursor()
 
 	inputChan := make(chan terminal.KeyEvent, 1)
-	app := app.New(w, inputChan, cancel)
+	defer close(inputChan)
+
+	app := app.New(inputChan, cancel)
 
 	go func() {
 		err := terminal.HandleKeyboardInput(ctx, inputChan)
 		if err != nil {
-			fmt.Fprintln(w, err.Error())
+			fmt.Fprintln(os.Stderr, err.Error())
 			cancel()
 		}
 	}()
@@ -38,5 +37,5 @@ func main() {
 
 	<-ctx.Done()
 
-	fmt.Fprintln(w, "Exiting")
+	fmt.Fprintln(os.Stdout, "Exiting")
 }

@@ -3,15 +3,13 @@ package app
 import (
 	"context"
 	"fmt"
-	"io"
 	"time"
 
 	"tui/terminal"
 )
 
 type timer struct {
-	screen io.Writer
-	input  chan terminal.KeyEvent
+	input chan terminal.KeyEvent
 }
 
 func (t *timer) Render(ctx context.Context) {
@@ -37,12 +35,11 @@ func (t *timer) Render(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			fmt.Fprintln(t.screen, "Timer stopped")
+			t.draw(fmt.Sprintf("Timer stopped at %s", d.String()))
 			time.Sleep(2 * time.Second)
 			return
 		case <-time.Tick(interval):
-			terminal.ClearScreen(t.screen)
-			fmt.Fprintln(t.screen, d)
+			t.draw(d.String())
 			d += interval
 		}
 	}
@@ -50,4 +47,10 @@ func (t *timer) Render(ctx context.Context) {
 
 func (t *timer) Title() string {
 	return "Timer"
+}
+
+func (t *timer) draw(s string) {
+	terminal.ClearScreen()
+	terminal.Draw(s)
+	terminal.Flush()
 }
