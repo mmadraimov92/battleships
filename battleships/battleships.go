@@ -25,7 +25,7 @@ func (i *Item) Render(ctx context.Context) {
 	defer cancel()
 
 	g := newGame()
-	i.draw(g)
+	draw(g)
 
 	for {
 		select {
@@ -37,7 +37,7 @@ func (i *Item) Render(ctx context.Context) {
 				return
 			}
 			g.handleKeyEvent(keyEvent)
-			i.draw(g)
+			draw(g)
 		}
 	}
 }

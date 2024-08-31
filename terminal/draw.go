@@ -12,10 +12,11 @@ var (
 	control            = "\033["
 	hideCursorSequence = control + "?25l"
 	showCursorSequence = control + "?25h"
+	cursorDownSequence = control + "1B"
+	nextLineSequence   = control + "1E"
 	clearSequence      = control + "H" + control + "2J"
-	ResetSequence      = control + "0m"
-	UnderlineSequence  = control + "4m"
-	VerticalBar        = string(rune('\u2502'))
+	resetSequence      = control + "0m"
+	underlineSequence  = control + "4m"
 )
 
 type renderer struct {
@@ -40,6 +41,22 @@ func Flush() {
 	r.buf.Reset()
 }
 
+func CursorDown() {
+	Draw(cursorDownSequence)
+}
+
+func CursorNextLine() {
+	Draw(nextLineSequence)
+}
+
+func Underline() {
+	Draw(underlineSequence)
+}
+
+func ResetFormatting() {
+	Draw(resetSequence)
+}
+
 func ClearScreen() {
 	r.w.Write([]byte(clearSequence))
 }
@@ -52,6 +69,10 @@ func ShowCursor() {
 	r.w.Write([]byte(showCursorSequence))
 }
 
-func MoveCursorTo(x, y int8) {
+func MoveCursorTo(x, y int) {
+	Draw(fmt.Sprintf("%s%d;%dH", control, y, x))
+}
+
+func MoveCursorToNextLine(x, y int) {
 	Draw(fmt.Sprintf("%s%d;%dH", control, y, x))
 }
