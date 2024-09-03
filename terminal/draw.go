@@ -2,9 +2,12 @@ package terminal
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"syscall"
+	"time"
 )
 
 // https://en.wikipedia.org/wiki/ANSI_escape_code
@@ -37,8 +40,18 @@ func Draw(s string) {
 }
 
 func Flush() {
-	fmt.Fprintln(r.w, r.buf.String())
-	r.buf.Reset()
+	for {
+		_, err := r.buf.WriteTo(r.w)
+		if err == nil {
+			return
+		}
+		if errors.Is(err, syscall.EAGAIN) {
+			time.Sleep(time.Millisecond)
+			continue
+		}
+
+		panic(err)
+	}
 }
 
 func CursorDown() {
