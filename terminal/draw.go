@@ -37,9 +37,10 @@ func Draw(s string) {
 	if err != nil {
 		panic(err)
 	}
+	flush()
 }
 
-func Flush() {
+func flush() {
 	for {
 		_, err := r.buf.WriteTo(r.w)
 		if err == nil {

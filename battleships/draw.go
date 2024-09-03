@@ -27,8 +27,6 @@ func draw(g *game) {
 	drawTargetBoard(g.targetBoard)
 	terminal.CursorNextLine()
 	drawInfo(g)
-
-	terminal.Flush()
 }
 
 func drawMyBoard(board *board) {

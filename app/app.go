@@ -76,5 +76,4 @@ func (m *App) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
 		row += "\n"
 		terminal.Draw(row)
 	}
-	terminal.Flush()
 }

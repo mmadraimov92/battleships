@@ -52,5 +52,4 @@ func (t *timer) Title() string {
 func (t *timer) draw(s string) {
 	terminal.ClearScreen()
 	terminal.Draw(s)
-	terminal.Flush()
 }
