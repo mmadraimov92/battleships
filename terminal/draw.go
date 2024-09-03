@@ -20,6 +20,7 @@ var (
 	clearSequence      = control + "H" + control + "2J"
 	resetSequence      = control + "0m"
 	underlineSequence  = control + "4m"
+	invertSequence     = control + "7m"
 )
 
 type renderer struct {
@@ -65,6 +66,10 @@ func CursorNextLine() {
 
 func Underline() {
 	Draw(underlineSequence)
+}
+
+func Invert() {
+	Draw(invertSequence)
 }
 
 func ResetFormatting() {

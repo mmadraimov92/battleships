@@ -11,7 +11,7 @@ var (
 	water            = "~"
 	hitSymbol        = "X"
 	missSymbol       = "O"
-	plus             = "+"
+	selectedCell     = "X"
 	destroyerSymbol  = "2"
 	cruiserSymbol    = "3"
 	submarineSymbol  = "3"
@@ -25,7 +25,6 @@ func draw(g *game) {
 
 	drawMyBoard(g.myBoard)
 	drawTargetBoard(g.targetBoard)
-	terminal.CursorNextLine()
 	drawInfo(g)
 }
 
@@ -39,11 +38,15 @@ func drawMyBoard(board *board) {
 	terminal.MoveCursorTo(curX, curY)
 	for i := range rows {
 		for j := range len(cols) {
-			symbolToDraw := cellSymbol(board.cellAt(i, j))
 			if i == int(board.selectedRow.Current()) && j == int(board.selectedCol.Current()) {
-				symbolToDraw = plus
+				terminal.Invert()
+				terminal.Draw(selectedCell)
+				terminal.ResetFormatting()
+				terminal.Draw(space)
+				continue
 			}
-			terminal.Draw(symbolToDraw + space)
+
+			terminal.Draw(cellSymbol(board.cellAt(i, j)) + space)
 		}
 		terminal.CursorDown()
 		curY++
@@ -64,11 +67,7 @@ func drawTargetBoard(board *board) {
 	terminal.MoveCursorTo(curX, curY)
 	for i := range rows {
 		for j := range len(cols) {
-			symbolToDraw := cellSymbol(board.cellAt(i, j))
-			if i == int(board.selectedRow.Current()) && j == int(board.selectedCol.Current()) {
-				symbolToDraw = missSymbol
-			}
-			terminal.Draw(symbolToDraw + space)
+			terminal.Draw(cellSymbol(board.cellAt(i, j)) + space)
 		}
 		terminal.CursorDown()
 		curY++
@@ -77,6 +76,7 @@ func drawTargetBoard(board *board) {
 }
 
 func drawInfo(g *game) {
+	terminal.CursorNextLine()
 	terminal.Draw("Mode: " + string(g.mode))
 	terminal.CursorNextLine()
 
