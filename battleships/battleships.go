@@ -25,6 +25,11 @@ func (i *Item) Render(ctx context.Context) {
 	defer cancel()
 
 	g := newGame()
+
+	// todo: think of something else
+	// initial board placement drawing
+	g.shipPlacement.placeOnBoard(g.myBoard)
+
 	draw(g)
 
 	for {

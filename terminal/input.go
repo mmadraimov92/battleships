@@ -21,6 +21,7 @@ const (
 	DownArrowKey
 	LeftArrowKey
 	RightArrowKey
+	SmallRKey
 )
 
 var keyMap = map[byte]KeyEvent{
@@ -32,6 +33,7 @@ var keyMap = map[byte]KeyEvent{
 	0x1b: EscapeKey,
 	0x0a: EnterKey,
 	0x0d: EnterKey,
+	0x72: SmallRKey,
 }
 
 func HandleKeyboardInput(ctx context.Context, input chan KeyEvent) error {

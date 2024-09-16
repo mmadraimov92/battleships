@@ -5,9 +5,12 @@ import (
 	"tui/terminal"
 )
 
-var (
-	statusHit  = "hit"
-	statusMiss = "miss"
+type cellStatus uint8
+
+const (
+	statusUndefined cellStatus = iota
+	statusHit
+	statusMiss
 )
 
 type board struct {
@@ -17,8 +20,8 @@ type board struct {
 }
 
 type cell struct {
-	shipClass class
-	status    *string
+	shipClass shipClass
+	status    cellStatus
 }
 
 func newBoard() *board {
@@ -29,7 +32,7 @@ func newBoard() *board {
 	}
 }
 
-func (b *board) handleKeyEvent(k terminal.KeyEvent) {
+func (b *board) selectCellToAttack(k terminal.KeyEvent) {
 	switch k {
 	case terminal.UpArrowKey:
 		b.selectedRow.Decrement()

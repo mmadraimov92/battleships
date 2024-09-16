@@ -10,8 +10,12 @@ func NewNumber(min, max int8) *Number {
 	return &Number{minValue: min, maxValue: max}
 }
 
-func (n *Number) Current() int8 {
-	return n.currentValue
+func (n *Number) Current() int {
+	return int(n.currentValue)
+}
+
+func (n *Number) Reset() {
+	n.currentValue = n.minValue
 }
 
 func (n *Number) Increment() {

@@ -1,6 +1,8 @@
 package battleships
 
 import (
+	"fmt"
+
 	"tui/terminal"
 )
 
@@ -38,9 +40,9 @@ func drawMyBoard(board *board) {
 	terminal.MoveCursorTo(curX, curY)
 	for i := range rows {
 		for j := range len(cols) {
-			if i == int(board.selectedRow.Current()) && j == int(board.selectedCol.Current()) {
+			if i == board.selectedRow.Current() && j == board.selectedCol.Current() {
 				terminal.Invert()
-				terminal.Draw(selectedCell)
+				terminal.Draw(cellSymbol(board.cellAt(i, j)))
 				terminal.ResetFormatting()
 				terminal.Draw(space)
 				continue
@@ -77,10 +79,22 @@ func drawTargetBoard(board *board) {
 
 func drawInfo(g *game) {
 	terminal.CursorNextLine()
-	terminal.Draw("Mode: " + string(g.mode))
-	terminal.CursorNextLine()
 
-	if g.mode == Attack {
+	if g.mode == ready {
+		terminal.Draw("Waiting for game to start")
+		terminal.CursorNextLine()
+	}
+
+	if g.mode == preparation {
+		terminal.Draw("Place your ships:")
+		terminal.CursorNextLine()
+		terminal.Draw(g.shipPlacementInfo())
+		terminal.CursorNextLine()
+		terminal.Draw(fmt.Sprintf("orientation: %d", g.shipPlacement.orientation.Current()))
+		terminal.CursorNextLine()
+	}
+
+	if g.mode == attack {
 		terminal.Draw(
 			"Select cell to attack: " +
 				string(rows[g.myBoard.selectedRow.Current()]) +
@@ -111,8 +125,8 @@ func drawCoordinates(offsetX, offsetY int) {
 }
 
 func cellSymbol(c *cell) string {
-	if c.status != nil {
-		switch *c.status {
+	if c.status != statusUndefined {
+		switch c.status {
 		case statusHit:
 			return hitSymbol
 		case statusMiss:
