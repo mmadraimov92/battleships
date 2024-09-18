@@ -72,8 +72,7 @@ func (g *game) placeShips(k terminal.KeyEvent) {
 		g.myBoard.selectedRow.Reset()
 		g.myBoard.selectedCol.Reset()
 		g.shipPlacement.orientation.Reset()
-		g.checkIfAllPlaced()
-		if g.mode == ready {
+		if g.areAllShipsPlaced() {
 			return
 		}
 	}
@@ -81,8 +80,10 @@ func (g *game) placeShips(k terminal.KeyEvent) {
 	g.shipPlacement.placeInValidPosition(g.myBoard)
 }
 
-func (g *game) checkIfAllPlaced() {
+func (g *game) areAllShipsPlaced() bool {
 	if len(g.shipPlacement.placed) == 5 {
 		g.mode = ready
+		return true
 	}
+	return false
 }
