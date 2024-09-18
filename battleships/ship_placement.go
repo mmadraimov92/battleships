@@ -1,6 +1,8 @@
 package battleships
 
-import "tui/cyclic"
+import (
+	"tui/cyclic"
+)
 
 var shipsToPlaceInOrder = []shipClass{
 	carrier,
@@ -40,7 +42,11 @@ func (sp *shipPlacement) acceptPlacement() {
 	}
 }
 
-func (sp shipPlacement) placeOnBoard(b *board) {
+// todo: better ux for placement
+// Place ship in given selected row/col and orientation.
+// If the ship is colliding with another ship then shift col and row until free spot is found.
+// If out of bounds do not do anything.
+func (sp shipPlacement) placeInValidPosition(b *board) {
 	// clear previous cells with given class
 	for row := range rows {
 		for col := range cols {
@@ -50,6 +56,25 @@ func (sp shipPlacement) placeOnBoard(b *board) {
 		}
 	}
 
+	for sp.isColliding(b) {
+		if b.selectedCol.Current() == 9 {
+			b.selectedRow.Increment()
+			b.selectedCol.Increment()
+			continue
+		}
+		if b.selectedRow.Current() == 9 {
+			b.selectedRow.Increment()
+			b.selectedCol.Increment()
+			continue
+		}
+
+		b.selectedCol.Increment()
+	}
+
+	sp.placeOnBoard(b)
+}
+
+func (sp shipPlacement) placeOnBoard(b *board) {
 	switch sp.orientation.Current() {
 	case 0:
 		sp.placeDown(b)
@@ -114,71 +139,80 @@ func (sp shipPlacement) placeRight(b *board) {
 	}
 }
 
-func (sp shipPlacement) isValidPlacement(b *board) bool {
+func (sp shipPlacement) isOutOfBounds(b *board) bool {
 	row := b.selectedRow.Current()
 	col := b.selectedCol.Current()
-
 	shipSize := sp.currentlyPlacing.shipSize()
 
-	// check borders
 	switch sp.orientation.Current() {
 	case 0:
 		if row+shipSize > 10 {
-			return false
+			return true
 		}
 	case 1:
 		if col-shipSize+1 < 0 {
-			return false
+			return true
 		}
 	case 2:
 		if row-shipSize+1 < 0 {
-			return false
+			return true
 		}
 	case 3:
 		if col+shipSize > 10 {
-			return false
+			return true
 		}
 	}
 
-	// check collisions
+	return false
+}
+
+func (sp shipPlacement) isColliding(b *board) bool {
+	row := b.selectedRow.Current()
+	col := b.selectedCol.Current()
+	shipSize := sp.currentlyPlacing.shipSize()
+
+	if sp.isOutOfBounds(b) {
+		return true
+	}
+
 	switch sp.orientation.Current() {
 	case 0:
 		for range shipSize {
 			shipAtCell := b.cellAt(row, col).shipClass
 			if shipAtCell != empty && shipAtCell != sp.currentlyPlacing {
-				return false
+				return true
 			}
 			row++
 		}
-		return true
+		return false
 	case 1:
 		for range shipSize {
 			shipAtCell := b.cellAt(row, col).shipClass
 			if shipAtCell != empty && shipAtCell != sp.currentlyPlacing {
-				return false
+				return true
 			}
 			col--
 		}
-		return true
+		return false
 	case 2:
 		for range shipSize {
 			shipAtCell := b.cellAt(row, col).shipClass
 			if shipAtCell != empty && shipAtCell != sp.currentlyPlacing {
-				return false
+				return true
 			}
 			row--
 		}
-		return true
+		return false
 
 	case 3:
 		for range shipSize {
 			shipAtCell := b.cellAt(row, col).shipClass
 			if shipAtCell != empty && shipAtCell != sp.currentlyPlacing {
-				return false
+				return true
 			}
 			col++
 		}
-		return true
+		return false
 	}
 
 	return true

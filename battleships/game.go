@@ -78,23 +78,7 @@ func (g *game) placeShips(k terminal.KeyEvent) {
 		}
 	}
 
-	if g.shipPlacement.isValidPlacement(g.myBoard) {
-		g.shipPlacement.placeOnBoard(g.myBoard)
-	} else { // revert back
-		switch k {
-		case terminal.UpArrowKey:
-			g.myBoard.selectedRow.Increment()
-		case terminal.DownArrowKey:
-			g.myBoard.selectedRow.Decrement()
-		case terminal.RightArrowKey:
-			g.myBoard.selectedCol.Decrement()
-		case terminal.LeftArrowKey:
-			g.myBoard.selectedCol.Increment()
-		case terminal.SmallRKey:
-			g.shipPlacement.orientation.Decrement()
-		}
-	}
-
+	g.shipPlacement.placeInValidPosition(g.myBoard)
 }
 
 func (g *game) checkIfAllPlaced() {

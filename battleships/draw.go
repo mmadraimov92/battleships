@@ -1,8 +1,6 @@
 package battleships
 
 import (
-	"fmt"
-
 	"tui/terminal"
 )
 
@@ -86,11 +84,8 @@ func drawInfo(g *game) {
 	}
 
 	if g.mode == preparation {
-		terminal.Draw("Place your ships:")
-		terminal.CursorNextLine()
+		terminal.Draw("Place your ships: ")
 		terminal.Draw(g.shipPlacementInfo())
-		terminal.CursorNextLine()
-		terminal.Draw(fmt.Sprintf("orientation: %d", g.shipPlacement.orientation.Current()))
 		terminal.CursorNextLine()
 	}
 

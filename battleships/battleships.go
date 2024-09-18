@@ -28,7 +28,7 @@ func (i *Item) Render(ctx context.Context) {
 
 	// todo: think of something else
 	// initial board placement drawing
-	g.shipPlacement.placeOnBoard(g.myBoard)
+	g.shipPlacement.placeInValidPosition(g.myBoard)
 
 	draw(g)
 

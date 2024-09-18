@@ -18,6 +18,10 @@ func (n *Number) Reset() {
 	n.currentValue = n.minValue
 }
 
+func (n *Number) Set(value int8) {
+	n.currentValue = value
+}
+
 func (n *Number) Increment() {
 	if n.currentValue+1 > n.maxValue {
 		n.currentValue = n.minValue
