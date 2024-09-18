@@ -1,13 +1,12 @@
 package cyclic
 
 type Number struct {
-	minValue     int8
 	maxValue     int8
 	currentValue int8
 }
 
-func NewNumber(min, max int8) *Number {
-	return &Number{minValue: min, maxValue: max}
+func NewNumber(max int8) *Number {
+	return &Number{maxValue: max}
 }
 
 func (n *Number) Current() int {
@@ -15,7 +14,7 @@ func (n *Number) Current() int {
 }
 
 func (n *Number) Reset() {
-	n.currentValue = n.minValue
+	n.currentValue = 0
 }
 
 func (n *Number) Set(value int8) {
@@ -24,14 +23,14 @@ func (n *Number) Set(value int8) {
 
 func (n *Number) Increment() {
 	if n.currentValue+1 > n.maxValue {
-		n.currentValue = n.minValue
+		n.currentValue = 0
 	} else {
 		n.currentValue++
 	}
 }
 
 func (n *Number) Decrement() {
-	if n.currentValue-1 < n.minValue {
+	if n.currentValue-1 < 0 {
 		n.currentValue = n.maxValue
 	} else {
 		n.currentValue--

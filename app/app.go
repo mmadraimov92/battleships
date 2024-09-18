@@ -30,7 +30,7 @@ func New(input chan terminal.KeyEvent, cancel context.CancelFunc) *App {
 	return &App{
 		input:        input,
 		items:        items,
-		selectedItem: cyclic.NewNumber(0, int8(len(items)-1)),
+		selectedItem: cyclic.NewNumber(int8(len(items) - 1)),
 	}
 }
 

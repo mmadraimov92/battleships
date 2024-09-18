@@ -21,7 +21,7 @@ type shipPlacement struct {
 func newShipPlacement() shipPlacement {
 	return shipPlacement{
 		currentlyPlacing: carrier,
-		orientation:      cyclic.NewNumber(0, 3),
+		orientation:      cyclic.NewNumber(3),
 	}
 }
 

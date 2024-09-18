@@ -27,8 +27,8 @@ type cell struct {
 func newBoard() *board {
 	return &board{
 		cells:       [10][10]cell{},
-		selectedRow: cyclic.NewNumber(0, 9),
-		selectedCol: cyclic.NewNumber(0, 9),
+		selectedRow: cyclic.NewNumber(9),
+		selectedCol: cyclic.NewNumber(9),
 	}
 }
 
