@@ -1,6 +1,6 @@
 package battleships
 
-type shipClass int
+type shipClass int8
 
 const (
 	empty shipClass = iota
@@ -11,8 +11,8 @@ const (
 	carrier
 )
 
-func (c shipClass) shipSize() int {
-	shipSize := 0
+func (c shipClass) shipSize() int8 {
+	shipSize := int8(0)
 	switch c {
 	case carrier:
 		shipSize = 5

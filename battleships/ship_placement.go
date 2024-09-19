@@ -50,8 +50,8 @@ func (sp shipPlacement) placeInValidPosition(b *board) {
 	// clear previous cells with given class
 	for row := range rows {
 		for col := range cols {
-			if sp.currentlyPlacing == b.cellAt(row, col).shipClass {
-				b.cellAt(row, col).shipClass = empty
+			if sp.currentlyPlacing == b.cellAt(int8(row), int8(col)).shipClass {
+				b.cellAt(int8(row), int8(col)).shipClass = empty
 			}
 		}
 	}

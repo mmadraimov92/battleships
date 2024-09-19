@@ -5,7 +5,7 @@ import (
 	"tui/terminal"
 )
 
-type cellStatus uint8
+type cellStatus int8
 
 const (
 	statusUndefined cellStatus = iota
@@ -45,6 +45,6 @@ func (b *board) selectCellToAttack(k terminal.KeyEvent) {
 	}
 }
 
-func (b *board) cellAt(row, col int) *cell {
+func (b *board) cellAt(row, col int8) *cell {
 	return &b.cells[row][col]
 }

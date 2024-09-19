@@ -36,17 +36,18 @@ func drawMyBoard(board *board) {
 	drawCoordinates(1, 2)
 	curX, curY := 3, 3
 	terminal.MoveCursorTo(curX, curY)
+
 	for i := range rows {
 		for j := range len(cols) {
-			if i == board.selectedRow.Current() && j == board.selectedCol.Current() {
+			if i == int(board.selectedRow.Current()) && j == int(board.selectedCol.Current()) {
 				terminal.Invert()
-				terminal.Draw(cellSymbol(board.cellAt(i, j)))
+				terminal.Draw(cellSymbol(board.cellAt(int8(i), int8(j))))
 				terminal.ResetFormatting()
 				terminal.Draw(space)
 				continue
 			}
 
-			terminal.Draw(cellSymbol(board.cellAt(i, j)) + space)
+			terminal.Draw(cellSymbol(board.cellAt(int8(i), int8(j))) + space)
 		}
 		terminal.CursorDown()
 		curY++
@@ -67,7 +68,7 @@ func drawTargetBoard(board *board) {
 	terminal.MoveCursorTo(curX, curY)
 	for i := range rows {
 		for j := range len(cols) {
-			terminal.Draw(cellSymbol(board.cellAt(i, j)) + space)
+			terminal.Draw(cellSymbol(board.cellAt(int8(i), int8(j))) + space)
 		}
 		terminal.CursorDown()
 		curY++
