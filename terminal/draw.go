@@ -91,7 +91,3 @@ func ShowCursor() {
 func MoveCursorTo(x, y int) {
 	Draw(fmt.Sprintf("%s%d;%dH", control, y, x))
 }
-
-func MoveCursorToNextLine(x, y int) {
-	Draw(fmt.Sprintf("%s%d;%dH", control, y, x))
-}
