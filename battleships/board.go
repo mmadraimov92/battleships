@@ -2,7 +2,6 @@ package battleships
 
 import (
 	"tui/cyclic"
-	"tui/terminal"
 )
 
 type cellStatus int8
@@ -32,19 +31,27 @@ func newBoard() *board {
 	}
 }
 
-func (b *board) selectCellToAttack(k terminal.KeyEvent) {
-	switch k {
-	case terminal.UpArrowKey:
-		b.selectedRow.Decrement()
-	case terminal.DownArrowKey:
-		b.selectedRow.Increment()
-	case terminal.RightArrowKey:
-		b.selectedCol.Increment()
-	case terminal.LeftArrowKey:
-		b.selectedCol.Decrement()
-	}
-}
-
 func (b *board) cellAt(row, col int8) *cell {
 	return &b.cells[row][col]
+}
+
+func (b *board) markAsHit(row, col int8, cls shipClass) {
+	b.cells[row][col].status = statusHit
+	b.cells[row][col].shipClass = cls
+}
+
+func (b *board) markAsMiss(row, col int8) {
+	b.cells[row][col].status = statusMiss
+}
+
+func (b *board) isDestroyed() bool {
+	for _, row := range b.cells {
+		for _, c := range row {
+			if c.status == statusUndefined && c.shipClass != empty {
+				return false
+			}
+		}
+	}
+
+	return true
 }

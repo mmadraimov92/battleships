@@ -5,36 +5,95 @@ import "tui/terminal"
 type mode int
 
 const (
-	preparation mode = iota
-	ready
-	attack
-	waiting
+	preparationMode mode = iota
+	readyMode
+	attackMode
+	waitingMode
+	winMode
+	loseMode
 )
 
 type game struct {
-	myBoard       *board
-	targetBoard   *board
-	mode          mode
-	shipPlacement shipPlacement
+	myBoard          *board
+	targetBoard      *board
+	mode             mode
+	shipPlacement    shipPlacement
+	outgoingMessages chan message
+	incomingMessages chan message
 }
 
 func newGame() *game {
 	return &game{
-		myBoard:       newBoard(),
-		targetBoard:   newBoard(),
-		mode:          preparation,
-		shipPlacement: newShipPlacement(),
+		myBoard:          newBoard(),
+		targetBoard:      newBoard(),
+		mode:             preparationMode,
+		shipPlacement:    newShipPlacement(),
+		outgoingMessages: make(chan message, 1),
+		incomingMessages: make(chan message, 1),
 	}
 }
 
 func (g *game) handleKeyEvent(k terminal.KeyEvent) {
 	switch g.mode {
-	case waiting, ready:
+	case waitingMode, readyMode, winMode, loseMode:
 		return
-	case preparation:
+	case preparationMode:
 		g.placeShips(k)
+	case attackMode:
+		g.selectCellToAttack(k)
+	}
+}
+
+func (g *game) handleIncomingMessage(c message) {
+	if g.mode != waitingMode {
+		return
+	}
+
+	switch c.t {
 	case attack:
-		g.targetBoard.selectCellToAttack(k)
+		cell := g.myBoard.cellAt(c.row, c.col)
+		if cell.shipClass == empty {
+			g.outgoingMessages <- newResponseMessageMiss(c.row, c.col)
+			g.mode = attackMode
+			return
+		}
+
+		g.myBoard.markAsHit(c.row, c.col, cell.shipClass)
+		gameOver := g.myBoard.isDestroyed()
+		g.outgoingMessages <- newResponseMessageHit(c.row, c.col, cell.shipClass, gameOver)
+		if gameOver {
+			g.mode = loseMode
+		} else {
+			g.mode = attackMode
+		}
+
+	case response:
+		if c.status == statusHit {
+			g.targetBoard.markAsHit(c.row, c.col, c.ship)
+			if c.gameOver {
+				g.mode = winMode
+			}
+			return
+		}
+
+		g.targetBoard.markAsMiss(c.row, c.col)
+		g.mode = waitingMode
+	}
+}
+
+func (g *game) selectCellToAttack(k terminal.KeyEvent) {
+	switch k {
+	case terminal.UpArrowKey:
+		g.targetBoard.selectedRow.Decrement()
+	case terminal.DownArrowKey:
+		g.targetBoard.selectedRow.Increment()
+	case terminal.RightArrowKey:
+		g.targetBoard.selectedCol.Increment()
+	case terminal.LeftArrowKey:
+		g.targetBoard.selectedCol.Decrement()
+	case terminal.EnterKey:
+		g.outgoingMessages <- newAttackMessage(g.targetBoard.selectedRow.Current(), g.targetBoard.selectedCol.Current())
+		g.mode = waitingMode
 	}
 }
 
@@ -82,7 +141,7 @@ func (g *game) placeShips(k terminal.KeyEvent) {
 
 func (g *game) areAllShipsPlaced() bool {
 	if len(g.shipPlacement.placed) == 5 {
-		g.mode = ready
+		g.mode = readyMode
 		return true
 	}
 	return false

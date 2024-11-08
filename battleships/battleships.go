@@ -36,6 +36,8 @@ func (i *Item) Render(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
+		case c := <-g.incomingMessages:
+			g.handleIncomingMessage(c)
 		case keyEvent := <-i.input:
 			if keyEvent == terminal.DeleteKey || keyEvent == terminal.EscapeKey {
 				cancel()

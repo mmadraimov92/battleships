@@ -79,18 +79,18 @@ func drawTargetBoard(board *board) {
 func drawInfo(g *game) {
 	terminal.CursorNextLine()
 
-	if g.mode == ready {
+	if g.mode == readyMode {
 		terminal.Draw("Waiting for game to start")
 		terminal.CursorNextLine()
 	}
 
-	if g.mode == preparation {
+	if g.mode == preparationMode {
 		terminal.Draw("Place your ships: ")
 		terminal.Draw(g.shipPlacementInfo())
 		terminal.CursorNextLine()
 	}
 
-	if g.mode == attack {
+	if g.mode == attackMode {
 		terminal.Draw(
 			"Select cell to attack: " +
 				string(rows[g.myBoard.selectedRow.Current()]) +
