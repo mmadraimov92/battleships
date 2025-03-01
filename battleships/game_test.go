@@ -7,7 +7,8 @@ import (
 )
 
 func TestGame_PlayerLoses(t *testing.T) {
-	game := newGame()
+	messages := make(chan message, 1)
+	game := newGame(messages)
 
 	myBoard := newBoard()
 	myBoard.cells[0][0] = cell{shipClass: destroyer, status: statusUndefined}
@@ -19,7 +20,7 @@ func TestGame_PlayerLoses(t *testing.T) {
 	// opponent attacks first
 	game.handleIncomingMessage(newAttackMessage(0, 0))
 
-	got := <-game.outgoingMessages
+	got := <-messages
 
 	assertEqual(t, got.t, response)
 	assertEqual(t, got.status, statusHit)
@@ -30,7 +31,7 @@ func TestGame_PlayerLoses(t *testing.T) {
 	// player attacks 0,0
 	game.selectCellToAttack(terminal.EnterKey)
 
-	got = <-game.outgoingMessages
+	got = <-messages
 
 	assertEqual(t, got.t, attack)
 	assertEqual(t, got.row, 0)
@@ -47,7 +48,7 @@ func TestGame_PlayerLoses(t *testing.T) {
 	// opponent attacks 1,0
 	game.handleIncomingMessage(newAttackMessage(1, 0))
 
-	got = <-game.outgoingMessages
+	got = <-messages
 
 	assertEqual(t, got.t, response)
 	assertEqual(t, got.status, statusHit)
@@ -57,7 +58,8 @@ func TestGame_PlayerLoses(t *testing.T) {
 }
 
 func TestGame_PlayerWins(t *testing.T) {
-	game := newGame()
+	messages := make(chan message, 1)
+	game := newGame(messages)
 
 	myBoard := newBoard()
 	myBoard.cells[0][0] = cell{shipClass: destroyer, status: statusUndefined}
@@ -69,7 +71,7 @@ func TestGame_PlayerWins(t *testing.T) {
 	// opponent attacks first
 	game.handleIncomingMessage(newAttackMessage(0, 0))
 
-	got := <-game.outgoingMessages
+	got := <-messages
 
 	assertEqual(t, got.t, response)
 	assertEqual(t, got.status, statusHit)
@@ -80,7 +82,7 @@ func TestGame_PlayerWins(t *testing.T) {
 	// player attacks 0,0
 	game.selectCellToAttack(terminal.EnterKey)
 
-	got = <-game.outgoingMessages
+	got = <-messages
 
 	assertEqual(t, got.t, attack)
 	assertEqual(t, got.row, 0)

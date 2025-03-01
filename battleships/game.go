@@ -14,22 +14,20 @@ const (
 )
 
 type game struct {
-	myBoard          *board
-	targetBoard      *board
-	mode             mode
-	shipPlacement    shipPlacement
-	outgoingMessages chan message
-	incomingMessages chan message
+	myBoard       *board
+	targetBoard   *board
+	mode          mode
+	shipPlacement shipPlacement
+	messages      chan<- message
 }
 
-func newGame() *game {
+func newGame(messages chan<- message) *game {
 	return &game{
-		myBoard:          newBoard(),
-		targetBoard:      newBoard(),
-		mode:             preparationMode,
-		shipPlacement:    newShipPlacement(),
-		outgoingMessages: make(chan message, 1),
-		incomingMessages: make(chan message, 1),
+		myBoard:       newBoard(),
+		targetBoard:   newBoard(),
+		mode:          preparationMode,
+		shipPlacement: newShipPlacement(),
+		messages:      messages,
 	}
 }
 
@@ -53,14 +51,14 @@ func (g *game) handleIncomingMessage(c message) {
 	case attack:
 		cell := g.myBoard.cellAt(c.row, c.col)
 		if cell.shipClass == empty {
-			g.outgoingMessages <- newResponseMessageMiss(c.row, c.col)
+			g.messages <- newResponseMessageMiss(c.row, c.col)
 			g.mode = attackMode
 			return
 		}
 
 		g.myBoard.markAsHit(c.row, c.col, cell.shipClass)
 		gameOver := g.myBoard.isDestroyed()
-		g.outgoingMessages <- newResponseMessageHit(c.row, c.col, cell.shipClass, gameOver)
+		g.messages <- newResponseMessageHit(c.row, c.col, cell.shipClass, gameOver)
 		if gameOver {
 			g.mode = loseMode
 		} else {
@@ -92,7 +90,7 @@ func (g *game) selectCellToAttack(k terminal.KeyEvent) {
 	case terminal.LeftArrowKey:
 		g.targetBoard.selectedCol.Decrement()
 	case terminal.EnterKey:
-		g.outgoingMessages <- newAttackMessage(g.targetBoard.selectedRow.Current(), g.targetBoard.selectedCol.Current())
+		g.messages <- newAttackMessage(g.targetBoard.selectedRow.Current(), g.targetBoard.selectedCol.Current())
 		g.mode = waitingMode
 	}
 }
