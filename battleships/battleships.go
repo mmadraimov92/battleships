@@ -23,6 +23,10 @@ func (*Battleships) Title() string {
 }
 
 func (b *Battleships) Select(ctx context.Context) {
+	b.start(ctx, false)
+}
+
+func (b *Battleships) start(ctx context.Context, testMode bool) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -31,11 +35,13 @@ func (b *Battleships) Select(ctx context.Context) {
 
 	g := newGame(outgoingMessages)
 
-	// todo: think of something else
-	// initial board placement drawing
-	g.shipPlacement.placeInValidPosition(g.myBoard)
+	if !testMode {
+		// todo: think of something else
+		// initial board placement drawing
+		g.shipPlacement.placeInValidPosition(g.myBoard)
 
-	draw(g)
+		draw(g)
+	}
 
 	// todo: start goroutine which listens to outgoing messages from game obj
 	// and relays to underlying net.Conn.
@@ -56,7 +62,9 @@ func (b *Battleships) Select(ctx context.Context) {
 				return
 			}
 			g.handleKeyEvent(keyEvent)
-			draw(g)
+			if !testMode {
+				draw(g)
+			}
 		}
 	}
 }

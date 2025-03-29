@@ -53,6 +53,7 @@ func (m *menu) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
 			m.selectedItem.Increment()
 		case terminal.EnterKey:
 			m.items[m.selectedItem.Current()].Select(ctx)
+			m.draw(ctx, nil) // draw Main menu when ESC is pressed
 			return
 		default:
 			return
