@@ -2,25 +2,27 @@ package battleships
 
 import (
 	"context"
+	"net"
 
 	"tui/terminal"
 )
 
-type Item struct {
+type Battleships struct {
 	input chan terminal.KeyEvent
+	conn  net.Conn
 }
 
-func New(input chan terminal.KeyEvent) *Item {
-	return &Item{
+func New(input chan terminal.KeyEvent) *Battleships {
+	return &Battleships{
 		input: input,
 	}
 }
 
-func (*Item) Title() string {
+func (*Battleships) Title() string {
 	return "Battleships"
 }
 
-func (i *Item) Render(ctx context.Context) {
+func (b *Battleships) Select(ctx context.Context) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -45,7 +47,10 @@ func (i *Item) Render(ctx context.Context) {
 			return
 		case c := <-incomingMessages:
 			g.handleIncomingMessage(c)
-		case keyEvent := <-i.input:
+		case <-outgoingMessages:
+			// todo: send message over network
+			continue
+		case keyEvent := <-b.input:
 			if keyEvent == terminal.DeleteKey || keyEvent == terminal.EscapeKey {
 				cancel()
 				return

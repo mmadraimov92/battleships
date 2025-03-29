@@ -7,7 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"tui/app"
+	"tui/battleships"
+	"tui/menu"
 	"tui/terminal"
 )
 
@@ -21,8 +22,6 @@ func main() {
 	inputChan := make(chan terminal.KeyEvent, 1)
 	defer close(inputChan)
 
-	app := app.New(inputChan, cancel)
-
 	go func() {
 		err := terminal.HandleKeyboardInput(ctx, inputChan)
 		if err != nil {
@@ -32,7 +31,13 @@ func main() {
 	}()
 
 	go func() {
-		app.Run(ctx)
+		menu.New(
+			inputChan,
+			[]menu.Item{
+				battleships.New(inputChan),
+				menu.NewExit(cancel),
+			},
+		).Run(ctx)
 	}()
 
 	<-ctx.Done()

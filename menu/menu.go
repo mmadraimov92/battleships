@@ -1,40 +1,33 @@
-package app
+package menu
 
 import (
 	"context"
 	"fmt"
 
-	"tui/battleships"
 	"tui/cyclic"
 	"tui/terminal"
 )
 
-type App struct {
+type Item interface {
+	Select(context.Context)
+	Title() string
+}
+
+type menu struct {
 	input        chan terminal.KeyEvent
 	items        []Item
 	selectedItem *cyclic.Number
 }
 
-func New(input chan terminal.KeyEvent, cancel context.CancelFunc) *App {
-	battleships := battleships.New(input)
-
-	timer := timer{
-		input: input,
-	}
-
-	exit := exit{
-		cancel: cancel,
-	}
-
-	items := []Item{battleships, &timer, &exit}
-	return &App{
+func New(input chan terminal.KeyEvent, items []Item) *menu {
+	return &menu{
 		input:        input,
 		items:        items,
 		selectedItem: cyclic.NewNumber(int8(len(items) - 1)),
 	}
 }
 
-func (m *App) Run(ctx context.Context) {
+func (m *menu) Run(ctx context.Context) {
 	m.draw(ctx, nil)
 
 	for {
@@ -47,7 +40,7 @@ func (m *App) Run(ctx context.Context) {
 	}
 }
 
-func (m *App) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
+func (m *menu) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
 	if ctx.Err() != nil {
 		return
 	}
@@ -59,8 +52,7 @@ func (m *App) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
 		case terminal.DownArrowKey:
 			m.selectedItem.Increment()
 		case terminal.EnterKey:
-			m.items[m.selectedItem.Current()].Render(ctx)
-			m.draw(ctx, nil)
+			m.items[m.selectedItem.Current()].Select(ctx)
 			return
 		default:
 			return
