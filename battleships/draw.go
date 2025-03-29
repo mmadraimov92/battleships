@@ -4,7 +4,7 @@ import (
 	"tui/terminal"
 )
 
-var (
+const (
 	space            = " "
 	cols             = "0123456789"
 	rows             = "ABCDEFGHIJ"

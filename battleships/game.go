@@ -2,7 +2,7 @@ package battleships
 
 import "tui/terminal"
 
-type mode int
+type mode int8
 
 const (
 	preparationMode mode = iota
