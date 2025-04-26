@@ -2,17 +2,18 @@ package battleships
 
 import "encoding/binary"
 
-type commandType int8
+type messageType int8
 
 const (
-	attack commandType = iota
+	control messageType = iota
+	attack
 	response
 )
 
 type message struct {
 	row      int8
 	col      int8
-	t        commandType
+	t        messageType
 	status   cellStatus
 	ship     shipClass
 	gameOver bool
@@ -48,11 +49,11 @@ func newResponseMessageHit(row, col int8, ship shipClass, gameOver bool) message
 
 func encodeMessage(m message) []byte {
 	var encoded uint16
-	encoded |= uint16(m.row&0xF) << 12   // 4 bits for row
-	encoded |= uint16(m.col&0xF) << 8    // 4 bits for col
-	encoded |= uint16(m.t&0x1) << 7      // 1 bit for command
-	encoded |= uint16(m.status&0x1) << 6 // 1 bit for hit/miss
-	encoded |= uint16(m.ship&0x7) << 3   // 3 bits for ship class
+	encoded |= uint16(m.row&0b1111) << 12 // 4 bits for row
+	encoded |= uint16(m.col&0b1111) << 8  // 4 bits for col
+	encoded |= uint16(m.t&0b11) << 6      // 2 bit for command
+	encoded |= uint16(m.status&0b1) << 5  // 1 bit for hit/miss
+	encoded |= uint16(m.ship&0b111) << 2  // 3 bits for ship class
 	if m.gameOver {
 		encoded |= 1 // last 1 bit for gameOver
 	}
@@ -68,11 +69,11 @@ func decodeMessage(encoded []byte) message {
 	}
 	value := binary.BigEndian.Uint16(encoded)
 	msg := message{
-		row:      int8((value >> 12) & 0xF),
-		col:      int8((value >> 8) & 0xF),
-		t:        commandType((value >> 7) & 0x1),
-		status:   cellStatus((value >> 6) & 0x1),
-		ship:     shipClass((value >> 3) & 0x7),
+		row:      int8((value >> 12) & 0b1111),
+		col:      int8((value >> 8) & 0b1111),
+		t:        messageType((value >> 6) & 0b11),
+		status:   cellStatus((value >> 5) & 0b1),
+		ship:     shipClass((value >> 2) & 0b111),
 		gameOver: (value & 0x1) != 0,
 	}
 
