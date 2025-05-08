@@ -22,6 +22,8 @@ func main() {
 	inputChan := make(chan terminal.KeyEvent, 1)
 	defer close(inputChan)
 
+	// todo: setup logging to file
+
 	go func() {
 		err := terminal.HandleKeyboardInput(ctx, inputChan)
 		if err != nil {
@@ -34,7 +36,8 @@ func main() {
 		menu.New(
 			inputChan,
 			[]menu.Item{
-				battleships.New(inputChan),
+				// todo: initialize conn
+				battleships.New(inputChan, nil),
 				menu.NewExit(cancel),
 			},
 		).Run(ctx)

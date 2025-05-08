@@ -99,6 +99,6 @@ func TestGame_PlayerWins(t *testing.T) {
 
 func assertEqual[T comparable](t *testing.T, got, expected T) {
 	if got != expected {
-		t.Errorf("got: %v, want: %v", got, expected)
+		t.Fatalf("got: %v, want: %v", got, expected)
 	}
 }

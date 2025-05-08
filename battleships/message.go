@@ -1,11 +1,13 @@
 package battleships
 
-import "encoding/binary"
+import (
+	"encoding/binary"
+)
 
 type messageType int8
 
 const (
-	control messageType = iota
+	initiative messageType = iota
 	attack
 	response
 )
@@ -44,6 +46,13 @@ func newResponseMessageHit(row, col int8, ship shipClass, gameOver bool) message
 		status:   statusHit,
 		ship:     ship,
 		gameOver: gameOver,
+	}
+}
+
+func newInitiativeMessage(i int8) message {
+	return message{
+		t:   initiative,
+		row: i,
 	}
 }
 

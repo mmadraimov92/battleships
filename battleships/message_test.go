@@ -1,6 +1,8 @@
 package battleships
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestMessageEncodeDecode(t *testing.T) {
 	tests := []struct {
@@ -27,6 +29,11 @@ func TestMessageEncodeDecode(t *testing.T) {
 			name:        "Hit response, game over",
 			m:           newResponseMessageHit(15, 15, carrier, true),
 			description: "Row 15, Col 15, Type response, Status hit, Ship carrier, Game over",
+		},
+		{
+			name:        "Initiative message",
+			m:           newInitiativeMessage(5),
+			description: "Initiative value 3, Type initiative",
 		},
 	}
 

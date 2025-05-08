@@ -1,6 +1,10 @@
 package battleships
 
-import "tui/terminal"
+import (
+	"log"
+	"math/rand"
+	"tui/terminal"
+)
 
 type mode int8
 
@@ -11,6 +15,8 @@ const (
 	waitingMode
 	winMode
 	loseMode
+
+	maxInitiative = 0b1110 // 14
 )
 
 type game struct {
@@ -19,6 +25,7 @@ type game struct {
 	mode          mode
 	shipPlacement shipPlacement
 	messages      chan<- message
+	initiative    int8
 }
 
 func newGame(messages chan<- message) *game {
@@ -28,27 +35,58 @@ func newGame(messages chan<- message) *game {
 		mode:          preparationMode,
 		shipPlacement: newShipPlacement(),
 		messages:      messages,
+		initiative:    int8(rand.Intn(maxInitiative)),
 	}
 }
 
-func (g *game) handleKeyEvent(k terminal.KeyEvent) {
-	switch g.mode {
-	case waitingMode, readyMode, winMode, loseMode:
+func (g *game) handleAttack(k terminal.KeyEvent) {
+	if g.mode != attackMode {
 		return
-	case preparationMode:
-		g.placeShips(k)
-	case attackMode:
-		g.selectCellToAttack(k)
 	}
+	g.selectCellToAttack(k)
+}
+
+func (g *game) handlePreparationInput(k terminal.KeyEvent) {
+	if g.mode != preparationMode {
+		return
+	}
+	g.placeShips(k)
+}
+
+func (g *game) handleInitiativeMessage(c message) bool {
+	defer log.Println("game initiative", g.initiative)
+	if c.t != initiative {
+		return false
+	}
+
+	if g.initiative > c.row {
+		g.mode = attackMode
+		log.Println("game mode set: attack")
+		return true
+	}
+
+	if g.initiative < c.row {
+		g.mode = waitingMode
+		log.Println("game mode set: waiting")
+		return true
+	}
+
+	return false
+}
+
+func (g *game) sendInitiative() {
+	g.messages <- newInitiativeMessage(g.initiative)
 }
 
 func (g *game) handleIncomingMessage(c message) {
+	defer log.Println("game mode:", g.mode)
 	if g.mode != waitingMode {
 		return
 	}
 
 	switch c.t {
 	case attack:
+		defer log.Printf("handled attack message")
 		cell := g.myBoard.cellAt(c.row, c.col)
 		if cell.shipClass == empty {
 			g.messages <- newResponseMessageMiss(c.row, c.col)
@@ -66,6 +104,7 @@ func (g *game) handleIncomingMessage(c message) {
 		}
 
 	case response:
+		defer log.Printf("handled response message")
 		if c.status == statusHit {
 			g.targetBoard.markAsHit(c.row, c.col, c.ship)
 			if c.gameOver {
@@ -139,7 +178,6 @@ func (g *game) placeShips(k terminal.KeyEvent) {
 
 func (g *game) areAllShipsPlaced() bool {
 	if len(g.shipPlacement.placed) == 5 {
-		g.mode = readyMode
 		return true
 	}
 	return false
