@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"tui/battleships"
 	"tui/menu"
@@ -15,6 +18,11 @@ import (
 func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
+
+	isServer := flag.Bool("server", false, "start instance as server")
+	addr := flag.String("addr", "127.0.0.1:1337", "address of server instance. Default 127.0.0.1:1337")
+
+	flag.Parse()
 
 	terminal.HideCursor()
 	defer terminal.ShowCursor()
@@ -32,12 +40,48 @@ func main() {
 		}
 	}()
 
+	var conn net.Conn
+	var err error
+	if *isServer {
+		listener, err := net.Listen("tcp4", *addr)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			cancel()
+		}
+		defer listener.Close()
+
+		fmt.Fprintln(os.Stdout, "Waiting for other player to connect")
+		ready := make(chan struct{})
+		go func() {
+			conn, err = listener.Accept()
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err.Error())
+				cancel()
+			}
+			close(ready)
+		}()
+
+		select {
+		case <-ready:
+			defer conn.Close()
+		case <-ctx.Done():
+		}
+	} else {
+		var d net.Dialer
+		d.Timeout = 5 * time.Second
+		conn, err = d.DialContext(ctx, "tcp4", *addr)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			cancel()
+		}
+		defer conn.Close()
+	}
+
 	go func() {
 		menu.New(
 			inputChan,
 			[]menu.Item{
-				// todo: initialize conn
-				battleships.New(inputChan, nil),
+				battleships.New(inputChan, conn),
 				menu.NewExit(cancel),
 			},
 		).Run(ctx)

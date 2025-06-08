@@ -88,12 +88,11 @@ preparation:
 				buf = buf[:n]
 				log.Printf("received message: %+v\n", decodeMessage(buf))
 				incomingMessages <- decodeMessage(buf)
-				log.Printf("consumed message")
 			}
 		}
 	}(ctx)
 
-	log.Println("Start inititative")
+	log.Println("Start initiative")
 initiative:
 	for {
 		select {
@@ -121,7 +120,6 @@ initiative:
 			return
 		case c := <-incomingMessages:
 			b.g.handleIncomingMessage(c)
-			log.Println("handled message", c.t)
 		case m := <-outgoingMessages:
 			_, err := b.conn.Write(encodeMessage(m))
 			if err != nil {

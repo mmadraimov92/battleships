@@ -19,6 +19,25 @@ const (
 	maxInitiative = 0b1110 // 14
 )
 
+func (m mode) String() string {
+	switch m {
+	case preparationMode:
+		return "preparation"
+	case readyMode:
+		return "ready"
+	case attackMode:
+		return "attack"
+	case waitingMode:
+		return "waiting"
+	case winMode:
+		return "win"
+	case loseMode:
+		return "lose"
+	default:
+		return "unknown"
+	}
+}
+
 type game struct {
 	myBoard       *board
 	targetBoard   *board
