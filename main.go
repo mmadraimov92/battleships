@@ -88,7 +88,9 @@ func main() {
 			logger.Error(err.Error())
 			cancel()
 		}
+		if conn != nil {
 		defer conn.Close()
+		}
 	}
 
 	go func() {
