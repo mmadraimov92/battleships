@@ -23,12 +23,12 @@ const (
 func draw(g *game) {
 	terminal.ClearScreen()
 
-	drawMyBoard(g.myBoard)
-	drawTargetBoard(g.targetBoard)
+	drawMyBoard(g.myBoard, g.mode)
+	drawTargetBoard(g.targetBoard, g.mode)
 	drawInfo(g)
 }
 
-func drawMyBoard(board *board) {
+func drawMyBoard(board *board, m mode) {
 	for range 8 {
 		terminal.Draw(space)
 	}
@@ -39,7 +39,7 @@ func drawMyBoard(board *board) {
 
 	for i := range rows {
 		for j := range len(cols) {
-			if i == int(board.selectedRow.Current()) && j == int(board.selectedCol.Current()) {
+			if m == preparationMode && i == int(board.selectedRow.Current()) && j == int(board.selectedCol.Current()) {
 				terminal.Invert()
 				terminal.Draw(cellSymbol(board.cellAt(int8(i), int8(j))))
 				terminal.ResetFormatting()
@@ -55,7 +55,7 @@ func drawMyBoard(board *board) {
 	}
 }
 
-func drawTargetBoard(board *board) {
+func drawTargetBoard(board *board, m mode) {
 	offsetX := 25
 	terminal.MoveCursorTo(offsetX, 1)
 	for range 6 {
@@ -68,6 +68,14 @@ func drawTargetBoard(board *board) {
 	terminal.MoveCursorTo(curX, curY)
 	for i := range rows {
 		for j := range len(cols) {
+			if m == attackMode && i == int(board.selectedRow.Current()) && j == int(board.selectedCol.Current()) {
+				terminal.Invert()
+				terminal.Draw(cellSymbol(board.cellAt(int8(i), int8(j))))
+				terminal.ResetFormatting()
+				terminal.Draw(space)
+				continue
+			}
+
 			terminal.Draw(cellSymbol(board.cellAt(int8(i), int8(j))) + space)
 		}
 		terminal.CursorDown()
@@ -92,12 +100,12 @@ func drawInfo(g *game) {
 
 	if g.mode == attackMode {
 		g.logger.Debug("selected cell: " +
-			string(rows[g.myBoard.selectedRow.Current()]) +
-			string(cols[g.myBoard.selectedCol.Current()]))
+			string(rows[g.targetBoard.selectedRow.Current()]) +
+			string(cols[g.targetBoard.selectedCol.Current()]))
 		terminal.Draw(
 			"Select cell to attack: " +
-				string(rows[g.myBoard.selectedRow.Current()]) +
-				string(cols[g.myBoard.selectedCol.Current()]))
+				string(rows[g.targetBoard.selectedRow.Current()]) +
+				string(cols[g.targetBoard.selectedCol.Current()]))
 	}
 }
 
