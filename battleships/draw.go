@@ -112,6 +112,14 @@ func drawInfo(g *game) {
 				string(rows[g.targetBoard.selectedRow.Current()]) +
 				string(cols[g.targetBoard.selectedCol.Current()]))
 	}
+
+	if g.mode == winMode {
+		terminal.Draw("YOU WIN!!!")
+	}
+
+	if g.mode == loseMode {
+		terminal.Draw("YOU LOST!!!")
+	}
 }
 
 func drawCoordinates(offsetX, offsetY int) {

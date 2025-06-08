@@ -105,7 +105,7 @@ func (g *game) sendInitiative() {
 }
 
 func (g *game) handleIncomingMessage(c message) {
-	defer g.logger.Debug(fmt.Sprint("game mode after handling message: ", g.mode))
+	defer func() { g.logger.Debug(fmt.Sprint("game mode after handling message: ", g.mode)) }()
 	if g.mode != waitingMode {
 		return
 	}
