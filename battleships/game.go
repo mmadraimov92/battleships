@@ -1,7 +1,8 @@
 package battleships
 
 import (
-	"log"
+	"fmt"
+	"log/slog"
 	"math/rand"
 	"tui/terminal"
 )
@@ -45,9 +46,10 @@ type game struct {
 	shipPlacement shipPlacement
 	messages      chan<- message
 	initiative    int8
+	logger        *slog.Logger
 }
 
-func newGame(messages chan<- message) *game {
+func newGame(messages chan<- message, logger *slog.Logger) *game {
 	return &game{
 		myBoard:       newBoard(),
 		targetBoard:   newBoard(),
@@ -55,6 +57,7 @@ func newGame(messages chan<- message) *game {
 		shipPlacement: newShipPlacement(),
 		messages:      messages,
 		initiative:    int8(rand.Intn(maxInitiative)),
+		logger:        logger,
 	}
 }
 
@@ -73,20 +76,20 @@ func (g *game) handlePreparationInput(k terminal.KeyEvent) {
 }
 
 func (g *game) handleInitiativeMessage(c message) bool {
-	defer log.Println("game initiative", g.initiative)
+	defer g.logger.Debug(fmt.Sprint("game initiative", g.initiative))
 	if c.t != initiative {
 		return false
 	}
 
 	if g.initiative > c.row {
 		g.mode = attackMode
-		log.Println("game mode set: attack")
+		g.logger.Info("game mode set: attack")
 		return true
 	}
 
 	if g.initiative < c.row {
 		g.mode = waitingMode
-		log.Println("game mode set: waiting")
+		g.logger.Info("game mode set: waiting")
 		return true
 	}
 
@@ -98,14 +101,14 @@ func (g *game) sendInitiative() {
 }
 
 func (g *game) handleIncomingMessage(c message) {
-	defer log.Println("game mode:", g.mode)
+	defer g.logger.Debug(fmt.Sprint("game mode after handling message:", g.mode))
 	if g.mode != waitingMode {
 		return
 	}
 
 	switch c.t {
 	case attack:
-		defer log.Printf("handled attack message")
+		defer g.logger.Debug("handled attack message")
 		cell := g.myBoard.cellAt(c.row, c.col)
 		if cell.shipClass == empty {
 			g.messages <- newResponseMessageMiss(c.row, c.col)
@@ -123,7 +126,7 @@ func (g *game) handleIncomingMessage(c message) {
 		}
 
 	case response:
-		defer log.Printf("handled response message")
+		defer g.logger.Debug("handled response message")
 		if c.status == statusHit {
 			g.targetBoard.markAsHit(c.row, c.col, c.ship)
 			if c.gameOver {

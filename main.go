@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log/slog"
 	"net"
 	"os"
 	"os/signal"
@@ -30,32 +31,43 @@ func main() {
 	inputChan := make(chan terminal.KeyEvent, 1)
 	defer close(inputChan)
 
-	// todo: setup logging to file
+	logInstance := "client"
+	if *isServer {
+		logInstance = "server"
+	}
+	logFile, err := os.Create(fmt.Sprintf("log_%s.txt", logInstance))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		cancel()
+	}
+	defer logFile.Close()
+
+	logger := slog.New(slog.NewTextHandler(logFile, nil).WithAttrs([]slog.Attr{slog.String("instance", logInstance)}))
 
 	go func() {
 		err := terminal.HandleKeyboardInput(ctx, inputChan)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
+			logger.Error(err.Error())
 			cancel()
 		}
 	}()
 
 	var conn net.Conn
-	var err error
 	if *isServer {
 		listener, err := net.Listen("tcp4", *addr)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
+			logger.Error(err.Error())
 			cancel()
 		}
 		defer listener.Close()
 
 		fmt.Fprintln(os.Stdout, "Waiting for other player to connect")
+		logger.Info("Waiting for other player to connect")
 		ready := make(chan struct{})
 		go func() {
 			conn, err = listener.Accept()
 			if err != nil {
-				fmt.Fprintln(os.Stderr, err.Error())
+				logger.Error(err.Error())
 				cancel()
 			}
 			close(ready)
@@ -71,7 +83,7 @@ func main() {
 		d.Timeout = 5 * time.Second
 		conn, err = d.DialContext(ctx, "tcp4", *addr)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
+			logger.Error(err.Error())
 			cancel()
 		}
 		defer conn.Close()
@@ -81,7 +93,7 @@ func main() {
 		menu.New(
 			inputChan,
 			[]menu.Item{
-				battleships.New(inputChan, conn),
+				battleships.New(inputChan, conn, logger),
 				menu.NewExit(cancel),
 			},
 		).Run(ctx)
@@ -89,5 +101,5 @@ func main() {
 
 	<-ctx.Done()
 
-	fmt.Fprintln(os.Stdout, "Exiting")
+	logger.Info("Exiting")
 }

@@ -2,6 +2,7 @@ package battleships
 
 import (
 	"context"
+	"log/slog"
 	"math"
 	"testing"
 	"time"
@@ -15,7 +16,8 @@ func TestBattleships_SimulatorStarts(t *testing.T) {
 	simulator, conn := NewSimulator()
 
 	input := make(chan terminal.KeyEvent)
-	b := New(input, conn)
+	slog.SetLogLoggerLevel(slog.LevelDebug)
+	b := New(input, conn, slog.Default())
 
 	go b.start(ctx, true)
 	setupBoard(ctx, b)

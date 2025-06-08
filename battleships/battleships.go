@@ -5,22 +5,23 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
-	"os"
+	"log/slog"
 
 	"tui/terminal"
 )
 
 type Battleships struct {
-	input chan terminal.KeyEvent
-	conn  io.ReadWriter
-	g     *game
+	input  chan terminal.KeyEvent
+	conn   io.ReadWriter
+	logger *slog.Logger
+	g      *game
 }
 
-func New(input chan terminal.KeyEvent, conn io.ReadWriter) *Battleships {
+func New(input chan terminal.KeyEvent, conn io.ReadWriter, logger *slog.Logger) *Battleships {
 	return &Battleships{
-		input: input,
-		conn:  conn,
+		input:  input,
+		conn:   conn,
+		logger: logger,
 	}
 }
 
@@ -39,7 +40,7 @@ func (b *Battleships) start(ctx context.Context, testMode bool) {
 	incomingMessages := make(chan message, 1)
 	outgoingMessages := make(chan message, 1)
 
-	b.g = newGame(outgoingMessages)
+	b.g = newGame(outgoingMessages, b.logger)
 
 	if !testMode {
 		// todo: think of something else
@@ -80,19 +81,19 @@ preparation:
 			default:
 				n, err := b.conn.Read(buf[:cap(buf)])
 				if err != nil && !errors.Is(err, io.EOF) {
-					fmt.Fprintln(os.Stderr, err)
+					b.logger.Error(err.Error())
 				}
 				if n == 0 {
 					continue
 				}
 				buf = buf[:n]
-				log.Printf("received message: %+v\n", decodeMessage(buf))
+				b.logger.Debug(fmt.Sprintf("received message: %+v\n", decodeMessage(buf)))
 				incomingMessages <- decodeMessage(buf)
 			}
 		}
 	}(ctx)
 
-	log.Println("Start initiative")
+	b.logger.Debug("Start initiative")
 initiative:
 	for {
 		select {
@@ -100,7 +101,7 @@ initiative:
 			return
 		case c := <-incomingMessages:
 			done := b.g.handleInitiativeMessage(c)
-			log.Printf("handled initiative message")
+			b.logger.Debug("handled initiative message")
 			if done {
 				break initiative
 			}
@@ -108,12 +109,12 @@ initiative:
 		case m := <-outgoingMessages:
 			_, err := b.conn.Write(encodeMessage(m))
 			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
+				b.logger.Error(err.Error())
 			}
 		}
 	}
 
-	log.Println("Start main game loop")
+	b.logger.Debug("Start main game loop")
 	for {
 		select {
 		case <-ctx.Done():
@@ -123,7 +124,7 @@ initiative:
 		case m := <-outgoingMessages:
 			_, err := b.conn.Write(encodeMessage(m))
 			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
+				b.logger.Error(err.Error())
 			}
 		case keyEvent := <-b.input:
 			if keyEvent == terminal.DeleteKey || keyEvent == terminal.EscapeKey {

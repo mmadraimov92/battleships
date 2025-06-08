@@ -1,6 +1,7 @@
 package battleships
 
 import (
+	"log/slog"
 	"testing"
 
 	"tui/terminal"
@@ -8,7 +9,8 @@ import (
 
 func TestGame_PlayerLoses(t *testing.T) {
 	messages := make(chan message, 1)
-	game := newGame(messages)
+	slog.SetLogLoggerLevel(slog.LevelDebug)
+	game := newGame(messages, slog.Default())
 
 	myBoard := newBoard()
 	myBoard.cells[0][0] = cell{shipClass: destroyer, status: statusUndefined}
@@ -59,7 +61,8 @@ func TestGame_PlayerLoses(t *testing.T) {
 
 func TestGame_PlayerWins(t *testing.T) {
 	messages := make(chan message, 1)
-	game := newGame(messages)
+	slog.SetLogLoggerLevel(slog.LevelDebug)
+	game := newGame(messages, slog.Default())
 
 	myBoard := newBoard()
 	myBoard.cells[0][0] = cell{shipClass: destroyer, status: statusUndefined}
