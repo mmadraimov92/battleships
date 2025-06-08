@@ -89,6 +89,7 @@ preparation:
 		}
 	}(ctx)
 
+	draw(b.g)
 	b.logger.Debug("Start initiative")
 initiative:
 	for {
@@ -111,6 +112,7 @@ initiative:
 	}
 
 	b.logger.Debug("Start main game loop")
+	draw(b.g)
 	for {
 		select {
 		case <-ctx.Done():
@@ -128,7 +130,7 @@ initiative:
 				return
 			}
 			b.g.handleAttack(keyEvent)
-			draw(b.g)
 		}
+		draw(b.g)
 	}
 }

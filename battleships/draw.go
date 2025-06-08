@@ -92,6 +92,11 @@ func drawInfo(g *game) {
 		terminal.CursorNextLine()
 	}
 
+	if g.mode == waitingMode {
+		terminal.Draw("Waiting for the attack")
+		terminal.CursorNextLine()
+	}
+
 	if g.mode == preparationMode {
 		terminal.Draw("Place your ships: ")
 		terminal.Draw(g.shipPlacementInfo())
