@@ -76,20 +76,20 @@ func (g *game) handlePreparationInput(k terminal.KeyEvent) {
 }
 
 func (g *game) handleInitiativeMessage(c message) bool {
-	defer g.logger.Debug(fmt.Sprint("game initiative", g.initiative))
+	defer g.logger.Debug(fmt.Sprint("game initiative ", g.initiative))
 	if c.t != initiative {
 		return false
 	}
 
 	if g.initiative > c.row {
 		g.mode = attackMode
-		g.logger.Info("game mode set: attack")
+		g.logger.Debug("game mode set: attack")
 		return true
 	}
 
 	if g.initiative < c.row {
 		g.mode = waitingMode
-		g.logger.Info("game mode set: waiting")
+		g.logger.Debug("game mode set: waiting")
 		return true
 	}
 
@@ -105,7 +105,7 @@ func (g *game) sendInitiative() {
 }
 
 func (g *game) handleIncomingMessage(c message) {
-	defer g.logger.Debug(fmt.Sprint("game mode after handling message:", g.mode))
+	defer g.logger.Debug(fmt.Sprint("game mode after handling message: ", g.mode))
 	if g.mode != waitingMode {
 		return
 	}

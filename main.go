@@ -44,7 +44,13 @@ func main() {
 	}
 	defer logFile.Close()
 
-	logger := slog.New(slog.NewTextHandler(logFile, nil).WithAttrs([]slog.Attr{slog.String("instance", logInstance)}))
+	logger := slog.New(
+		slog.
+			NewTextHandler(logFile, &slog.HandlerOptions{
+				Level: slog.LevelDebug,
+			}).
+			WithAttrs([]slog.Attr{slog.String("instance", logInstance)}),
+	)
 
 	go func() {
 		err := terminal.HandleKeyboardInput(ctx, inputChan)
@@ -89,7 +95,7 @@ func main() {
 			cancel()
 		}
 		if conn != nil {
-		defer conn.Close()
+			defer conn.Close()
 		}
 	}
 

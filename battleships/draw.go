@@ -91,6 +91,9 @@ func drawInfo(g *game) {
 	}
 
 	if g.mode == attackMode {
+		g.logger.Debug("selected cell: " +
+			string(rows[g.myBoard.selectedRow.Current()]) +
+			string(cols[g.myBoard.selectedCol.Current()]))
 		terminal.Draw(
 			"Select cell to attack: " +
 				string(rows[g.myBoard.selectedRow.Current()]) +

@@ -83,7 +83,7 @@ preparation:
 					continue
 				}
 				buf = buf[:n]
-				b.logger.Debug(fmt.Sprintf("received message: %+v\n", decodeMessage(buf)))
+				b.logger.Debug(fmt.Sprintf("received message: %+v", decodeMessage(buf)))
 				incomingMessages <- decodeMessage(buf)
 			}
 		}
