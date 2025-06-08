@@ -33,6 +33,10 @@ var r = renderer{
 	w:   os.Stdout,
 }
 
+func SetRendererOutput(w io.Writer) {
+	r.w = w
+}
+
 func Draw(s string) {
 	_, err := r.buf.WriteString(s)
 	if err != nil {

@@ -30,10 +30,10 @@ func (*Battleships) Title() string {
 }
 
 func (b *Battleships) Select(ctx context.Context) {
-	b.start(ctx, false)
+	b.start(ctx)
 }
 
-func (b *Battleships) start(ctx context.Context, testMode bool) {
+func (b *Battleships) start(ctx context.Context) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -42,13 +42,11 @@ func (b *Battleships) start(ctx context.Context, testMode bool) {
 
 	b.g = newGame(outgoingMessages, b.logger)
 
-	if !testMode {
-		// todo: think of something else
-		// initial board placement drawing
-		b.g.shipPlacement.placeInValidPosition(b.g.myBoard)
+	// todo: think of something else
+	// initial board placement drawing
+	b.g.shipPlacement.placeInValidPosition(b.g.myBoard)
 
-		draw(b.g)
-	}
+	draw(b.g)
 
 preparation:
 	for {
@@ -65,9 +63,7 @@ preparation:
 				b.g.mode = readyMode
 				break preparation
 			}
-			if !testMode {
-				draw(b.g)
-			}
+			draw(b.g)
 		}
 	}
 
@@ -132,9 +128,7 @@ initiative:
 				return
 			}
 			b.g.handleAttack(keyEvent)
-			if !testMode {
-				draw(b.g)
-			}
+			draw(b.g)
 		}
 	}
 }

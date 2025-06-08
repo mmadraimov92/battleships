@@ -25,6 +25,8 @@ func main() {
 
 	flag.Parse()
 
+	terminal.SetRendererOutput(os.Stdout)
+
 	terminal.HideCursor()
 	defer terminal.ShowCursor()
 
