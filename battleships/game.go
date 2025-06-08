@@ -93,6 +93,10 @@ func (g *game) handleInitiativeMessage(c message) bool {
 		return true
 	}
 
+	if g.initiative == c.row {
+		g.logger.Debug("reroll initiative")
+		g.initiative = int8(rand.Intn(maxInitiative))
+	}
 	return false
 }
 
