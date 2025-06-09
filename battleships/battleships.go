@@ -27,7 +27,7 @@ func New(input chan terminal.KeyEvent, conn io.ReadWriter, logger *slog.Logger) 
 }
 
 func (*Battleships) Title() string {
-	return "Battleships"
+	return "Battleships PVP"
 }
 
 func (b *Battleships) Select(ctx context.Context) {

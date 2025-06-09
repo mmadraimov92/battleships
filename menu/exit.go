@@ -9,9 +9,7 @@ type exit struct {
 }
 
 func NewExit(cancel context.CancelFunc) *exit {
-	return &exit{
-		cancel: cancel,
-	}
+	return &exit{cancel}
 }
 
 func (t *exit) Select(_ context.Context) {

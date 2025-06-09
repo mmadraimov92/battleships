@@ -115,6 +115,7 @@ func main() {
 			inputChan,
 			[]menu.Item{
 				battleships.New(inputChan, conn, logger),
+				menu.NewBattleshipsAI(),
 				menu.NewExit(cancel),
 			},
 		).Run(ctx)
