@@ -12,17 +12,36 @@ import (
 )
 
 type Battleships struct {
-	input  chan terminal.KeyEvent
-	conn   io.ReadWriter
-	logger *slog.Logger
-	g      *game
+	input    chan terminal.KeyEvent
+	conn     io.ReadWriter
+	logger   *slog.Logger
+	g        *game
+	isServer bool
+	address  string
 }
 
-func New(input chan terminal.KeyEvent, conn io.ReadWriter, logger *slog.Logger) *Battleships {
-	return &Battleships{
+func New(input chan terminal.KeyEvent, logger *slog.Logger, opts ...func(*Battleships)) *Battleships {
+	b := &Battleships{
 		input:  input,
-		conn:   conn,
 		logger: logger,
+	}
+
+	for _, option := range opts {
+		option(b)
+	}
+
+	return b
+}
+
+func AsServer() func(*Battleships) {
+	return func(b *Battleships) {
+		b.isServer = true
+	}
+}
+
+func WithAddress(address string) func(*Battleships) {
+	return func(b *Battleships) {
+		b.address = address
 	}
 }
 

@@ -110,11 +110,18 @@ func main() {
 		}
 	}
 
+	options := []func(*battleships.Battleships){
+		battleships.WithAddress(*addr),
+	}
+	if *isServer {
+		options = append(options, battleships.AsServer())
+	}
+
 	go func() {
 		menu.New(
 			inputChan,
 			[]menu.Item{
-				battleships.New(inputChan, conn, logger),
+				battleships.New(inputChan, logger, options...),
 				menu.NewBattleshipsAI(),
 				menu.NewExit(cancel),
 			},
