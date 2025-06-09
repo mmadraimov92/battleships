@@ -101,12 +101,18 @@ func drawInfo(g *game) {
 		terminal.Draw("Place your ships: ")
 		terminal.Draw(g.shipPlacementInfo())
 		terminal.CursorNextLine()
+		terminal.CursorNextLine()
+		terminal.Draw("Controls:")
+		terminal.CursorNextLine()
+		terminal.Draw("Arrow keys: move ship")
+		terminal.CursorNextLine()
+		terminal.Draw("R: rotate")
+		terminal.CursorNextLine()
+		terminal.Draw("Enter: place ship")
+		terminal.CursorNextLine()
 	}
 
 	if g.mode == attackMode {
-		g.logger.Debug("selected cell: " +
-			string(rows[g.targetBoard.selectedRow.Current()]) +
-			string(cols[g.targetBoard.selectedCol.Current()]))
 		terminal.Draw(
 			"Select cell to attack: " +
 				string(rows[g.targetBoard.selectedRow.Current()]) +
