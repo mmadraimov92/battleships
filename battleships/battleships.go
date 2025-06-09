@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"time"
 
 	"tui/terminal"
 )
@@ -78,6 +79,9 @@ preparation:
 				n, err := b.conn.Read(buf[:cap(buf)])
 				if err != nil && !errors.Is(err, io.EOF) {
 					b.logger.Error(err.Error())
+					terminal.Draw("Connection error...Exiting")
+					time.Sleep(2 * time.Second)
+					cancel()
 				}
 				if n == 0 {
 					continue
@@ -107,6 +111,9 @@ initiative:
 			_, err := b.conn.Write(encodeMessage(m))
 			if err != nil {
 				b.logger.Error(err.Error())
+				terminal.Draw("Connection error...Exiting")
+				time.Sleep(2 * time.Second)
+				cancel()
 			}
 		}
 	}
@@ -123,6 +130,9 @@ initiative:
 			_, err := b.conn.Write(encodeMessage(m))
 			if err != nil {
 				b.logger.Error(err.Error())
+				terminal.Draw("Connection error...Exiting")
+				time.Sleep(2 * time.Second)
+				cancel()
 			}
 		case keyEvent := <-b.input:
 			if keyEvent == terminal.DeleteKey || keyEvent == terminal.EscapeKey {
