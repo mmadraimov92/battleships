@@ -15,11 +15,16 @@ func TestBattleships_SimulatorStarts(t *testing.T) {
 	defer cancel()
 
 	terminal.SetRendererOutput(io.Discard)
-	simulator, conn := NewSimulator()
+	simulator, err := NewSimulator()
+	if err != nil {
+		t.Error(err)
+	}
+	defer simulator.Close()
 
 	input := make(chan terminal.KeyEvent)
 	slog.SetLogLoggerLevel(slog.LevelDebug)
-	b := New(input, conn, slog.Default())
+	b := New(input, slog.Default())
+	b.setConnection(simulator.client)
 
 	go b.start(ctx)
 	setupBoard(ctx, b)
@@ -33,6 +38,8 @@ func TestBattleships_SimulatorStarts(t *testing.T) {
 	if simulator.Write(newInitiativeMessage(math.MaxInt8)) != nil {
 		t.Error(err)
 	}
+
+	time.Sleep(10 * time.Millisecond)
 
 	// send attack Hit
 	if simulator.Write(newAttackMessage(0, 0)) != nil {

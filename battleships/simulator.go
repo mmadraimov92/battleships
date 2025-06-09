@@ -4,35 +4,38 @@ import (
 	"context"
 	"errors"
 	"io"
+	"net"
 )
 
 type Simulator struct {
-	conn io.ReadWriter
+	server net.Conn
+	client net.Conn
 }
 
-func NewSimulator() (*Simulator, io.ReadWriter) {
-	clientR, serverW := io.Pipe()
-	serverR, clientW := io.Pipe()
+func NewSimulator() (*Simulator, error) {
+	simulator := &Simulator{}
 
-	clientConn := struct {
-		io.Reader
-		io.Writer
-	}{
-		Reader: clientR,
-		Writer: clientW,
+	ln, err := net.Listen("tcp4", "127.0.0.1:0")
+	if err != nil {
+		return nil, err
 	}
 
-	simulator := &Simulator{
-		conn: struct {
-			io.Reader
-			io.Writer
-		}{
-			Reader: serverR,
-			Writer: serverW,
-		},
-	}
+	go func() {
+		defer ln.Close()
+		server, err := ln.Accept()
+		if err != nil {
+			return
+		}
+		simulator.server = server
+	}()
 
-	return simulator, clientConn
+	client, err := net.Dial("tcp4", ln.Addr().String())
+	if err != nil {
+		return nil, err
+	}
+	simulator.client = client
+
+	return simulator, nil
 }
 
 func (s *Simulator) Read(ctx context.Context) (*message, error) {
@@ -42,7 +45,7 @@ func (s *Simulator) Read(ctx context.Context) (*message, error) {
 			return nil, ctx.Err()
 		default:
 			buf := make([]byte, 2)
-			n, err := s.conn.Read(buf[:cap(buf)])
+			n, err := s.server.Read(buf[:cap(buf)])
 			if err != nil {
 				if errors.Is(err, io.EOF) {
 					continue
@@ -57,10 +60,15 @@ func (s *Simulator) Read(ctx context.Context) (*message, error) {
 }
 
 func (s *Simulator) Write(msg message) error {
-	_, err := s.conn.Write(encodeMessage(msg))
+	_, err := s.server.Write(encodeMessage(msg))
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (s *Simulator) Close() {
+	s.server.Close()
+	s.client.Close()
 }
