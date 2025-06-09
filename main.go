@@ -87,12 +87,23 @@ func main() {
 		case <-ctx.Done():
 		}
 	} else {
-		var d net.Dialer
-		d.Timeout = 5 * time.Second
-		conn, err = d.DialContext(ctx, "tcp4", *addr)
-		if err != nil {
-			logger.Error(err.Error())
-			cancel()
+	connectToServer:
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.Tick(time.Second):
+				var d net.Dialer
+				d.Timeout = 5 * time.Second
+				conn, err = d.DialContext(ctx, "tcp4", *addr)
+				if err != nil {
+					terminal.ClearScreen()
+					fmt.Fprintln(os.Stdout, "Waiting for the server connection")
+					logger.Error(err.Error())
+					continue
+				}
+				break connectToServer
+			}
 		}
 		if conn != nil {
 			defer conn.Close()
