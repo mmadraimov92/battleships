@@ -203,8 +203,5 @@ func (g *game) placeShips(k terminal.KeyEvent) {
 }
 
 func (g *game) areAllShipsPlaced() bool {
-	if len(g.shipPlacement.placed) == 5 {
-		return true
-	}
-	return false
+	return len(g.shipPlacement.placed) == 5
 }

@@ -87,15 +87,15 @@ func ResetFormatting() {
 }
 
 func ClearScreen() {
-	r.w.Write([]byte(clearSequence))
+	r.w.Write([]byte(clearSequence)) //nolint:errcheck
 }
 
 func HideCursor() {
-	r.w.Write([]byte(hideCursorSequence))
+	r.w.Write([]byte(hideCursorSequence)) //nolint:errcheck
 }
 
 func ShowCursor() {
-	r.w.Write([]byte(showCursorSequence))
+	r.w.Write([]byte(showCursorSequence)) //nolint:errcheck
 }
 
 func MoveCursorTo(x, y int) {

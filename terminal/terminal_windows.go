@@ -36,10 +36,10 @@ const (
 
 	// Output mode flags
 	enableProcessedOutput           = 0x0001
-	enableWrapAtEolOutput          = 0x0002
+	enableWrapAtEolOutput           = 0x0002
 	enableVirtualTerminalProcessing = 0x0004
-	disableNewlineAutoReturn       = 0x0008
-	enableLvbGridWorldwide         = 0x0010
+	disableNewlineAutoReturn        = 0x0008
+	enableLvbGridWorldwide          = 0x0010
 )
 
 func getConsoleHandle(handleType uint32) (windows.Handle, error) {

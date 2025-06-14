@@ -41,7 +41,7 @@ func HandleKeyboardInput(ctx context.Context, input chan KeyEvent) error {
 	if err != nil {
 		return fmt.Errorf("HandleKeyboardInput: %w", err)
 	}
-	defer restore(int(os.Stdin.Fd()), oldState)
+	defer restore(int(os.Stdin.Fd()), oldState) //nolint:errcheck
 
 	buf := make([]byte, 3)
 

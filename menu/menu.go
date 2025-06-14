@@ -61,7 +61,7 @@ func (m *menu) draw(ctx context.Context, pressedKey *terminal.KeyEvent) {
 	}
 
 	terminal.ClearScreen()
-	terminal.Draw(fmt.Sprintf("\tMENU"))
+	terminal.Draw("\tMENU")
 	terminal.CursorNextLine()
 
 	for i, item := range m.items {
