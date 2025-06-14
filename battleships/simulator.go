@@ -8,17 +8,18 @@ import (
 )
 
 type Simulator struct {
+	ln     net.Listener
 	server net.Conn
-	client net.Conn
 }
 
 func NewSimulator() (*Simulator, error) {
-	simulator := &Simulator{}
+	s := &Simulator{}
 
 	ln, err := net.Listen("tcp4", "127.0.0.1:0")
 	if err != nil {
 		return nil, err
 	}
+	s.ln = ln
 
 	go func() {
 		defer ln.Close()
@@ -26,16 +27,10 @@ func NewSimulator() (*Simulator, error) {
 		if err != nil {
 			return
 		}
-		simulator.server = server
+		s.server = server
 	}()
 
-	client, err := net.Dial("tcp4", ln.Addr().String())
-	if err != nil {
-		return nil, err
-	}
-	simulator.client = client
-
-	return simulator, nil
+	return s, nil
 }
 
 func (s *Simulator) Read(ctx context.Context) (*message, error) {
@@ -68,7 +63,12 @@ func (s *Simulator) Write(msg message) error {
 	return nil
 }
 
+func (s *Simulator) Addr() string {
+	return s.ln.Addr().String()
+}
+
 func (s *Simulator) Close() {
-	s.server.Close()
-	s.client.Close()
+	if s.server != nil {
+		s.server.Close()
+	}
 }

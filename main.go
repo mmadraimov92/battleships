@@ -5,11 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"log/slog"
-	"net"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"tui/battleships"
 	"tui/menu"
@@ -59,56 +57,6 @@ func main() {
 			cancel()
 		}
 	}()
-
-	var conn net.Conn
-	if *isServer {
-		listener, err := net.Listen("tcp4", *addr)
-		if err != nil {
-			logger.Error(err.Error())
-			cancel()
-		}
-		defer listener.Close()
-
-		fmt.Fprintln(os.Stdout, "Waiting for other player to connect")
-		logger.Info("Waiting for other player to connect")
-		ready := make(chan struct{})
-		go func() {
-			conn, err = listener.Accept()
-			if err != nil {
-				logger.Error(err.Error())
-				cancel()
-			}
-			close(ready)
-		}()
-
-		select {
-		case <-ready:
-			defer conn.Close()
-		case <-ctx.Done():
-		}
-	} else {
-	connectToServer:
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-time.Tick(time.Second):
-				var d net.Dialer
-				d.Timeout = 5 * time.Second
-				conn, err = d.DialContext(ctx, "tcp4", *addr)
-				if err != nil {
-					terminal.ClearScreen()
-					fmt.Fprintln(os.Stdout, "Waiting for the server connection")
-					logger.Error(err.Error())
-					continue
-				}
-				break connectToServer
-			}
-		}
-		if conn != nil {
-			defer conn.Close()
-		}
-	}
 
 	options := []func(*battleships.Battleships){
 		battleships.WithAddress(*addr),

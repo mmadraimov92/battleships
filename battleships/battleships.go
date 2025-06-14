@@ -50,10 +50,21 @@ func (*Battleships) Title() string {
 }
 
 func (b *Battleships) Select(ctx context.Context) {
+	conn := b.connect(ctx)
+	if conn != nil {
+		defer conn.Close()
+		b.conn = conn
+	}
 	b.start(ctx)
 }
 
 func (b *Battleships) start(ctx context.Context) {
+	select {
+	case <-ctx.Done():
+		return
+	default:
+	}
+
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -98,6 +109,7 @@ preparation:
 				n, err := b.conn.Read(buf[:cap(buf)])
 				if err != nil && !errors.Is(err, io.EOF) {
 					b.logger.Error(err.Error())
+					terminal.CursorNextLine()
 					terminal.Draw("Connection error...Exiting")
 					time.Sleep(2 * time.Second)
 					cancel()
@@ -130,6 +142,7 @@ initiative:
 			_, err := b.conn.Write(encodeMessage(m))
 			if err != nil {
 				b.logger.Error(err.Error())
+				terminal.CursorNextLine()
 				terminal.Draw("Connection error...Exiting")
 				time.Sleep(2 * time.Second)
 				cancel()
@@ -149,6 +162,7 @@ initiative:
 			_, err := b.conn.Write(encodeMessage(m))
 			if err != nil {
 				b.logger.Error(err.Error())
+				terminal.CursorNextLine()
 				terminal.Draw("Connection error...Exiting")
 				time.Sleep(2 * time.Second)
 				cancel()
