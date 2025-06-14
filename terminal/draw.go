@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync"
 	"syscall"
 	"time"
 )
@@ -26,11 +27,13 @@ var (
 type renderer struct {
 	buf *bytes.Buffer
 	w   io.Writer
+	m   *sync.Mutex
 }
 
 var r = renderer{
 	buf: bytes.NewBuffer([]byte{}),
 	w:   os.Stdout,
+	m:   &sync.Mutex{},
 }
 
 func SetRendererOutput(w io.Writer) {
@@ -38,6 +41,9 @@ func SetRendererOutput(w io.Writer) {
 }
 
 func Draw(s string) {
+	r.m.Lock()
+	defer r.m.Unlock()
+
 	_, err := r.buf.WriteString(s)
 	if err != nil {
 		panic(err)
