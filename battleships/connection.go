@@ -21,6 +21,7 @@ func (b *Battleships) connect(ctx context.Context) net.Conn {
 		}
 		defer listener.Close()
 
+		terminal.ClearScreen()
 		terminal.Draw("Waiting for other player to connect")
 		b.logger.Info("Waiting for other player to connect")
 		ready := make(chan struct{})
