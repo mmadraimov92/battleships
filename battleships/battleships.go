@@ -52,7 +52,7 @@ func (*Battleships) Title() string {
 func (b *Battleships) Select(ctx context.Context) {
 	conn := b.connect(ctx)
 	if conn != nil {
-		defer conn.Close()
+		defer conn.Close() //nolint:errcheck
 		b.conn = conn
 	}
 	b.start(ctx)

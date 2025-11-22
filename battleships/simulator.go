@@ -22,7 +22,7 @@ func NewSimulator() (*Simulator, error) {
 	s.ln = ln
 
 	go func() {
-		defer ln.Close()
+		defer ln.Close() //nolint:errcheck
 		server, err := ln.Accept()
 		if err != nil {
 			return
@@ -69,6 +69,6 @@ func (s *Simulator) Addr() string {
 
 func (s *Simulator) Close() {
 	if s.server != nil {
-		s.server.Close()
+		s.server.Close() //nolint:errcheck
 	}
 }

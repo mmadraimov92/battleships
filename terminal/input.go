@@ -55,7 +55,7 @@ func HandleKeyboardInput(ctx context.Context, input chan KeyEvent) error {
 				if errors.Is(err, syscall.EAGAIN) {
 					continue
 				}
-				fmt.Fprint(os.Stdout, err.Error())
+				fmt.Fprint(os.Stdout, err.Error()) //nolint:errcheck
 			}
 			keyEvent := processInput(buf, n)
 			if keyEvent != empty {

@@ -19,7 +19,7 @@ func (b *Battleships) connect(ctx context.Context) net.Conn {
 			b.logger.Error(err.Error())
 			cancel()
 		}
-		defer listener.Close()
+		defer listener.Close() //nolint:errcheck
 
 		terminal.ClearScreen()
 		terminal.Draw("Waiting for other player to connect")

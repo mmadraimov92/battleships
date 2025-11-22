@@ -36,7 +36,7 @@ func TestBattleships_SimulatorStarts(t *testing.T) {
 	if conn == nil {
 		t.Fatal("could not connect to simulator")
 	}
-	defer conn.Close()
+	defer conn.Close() //nolint:errcheck
 	b.conn = conn
 
 	go b.start(ctx)

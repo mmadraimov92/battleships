@@ -40,7 +40,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, err.Error())
 		cancel()
 	}
-	defer logFile.Close()
+	defer logFile.Close() //nolint:errcheck
 
 	logger := slog.New(
 		slog.
