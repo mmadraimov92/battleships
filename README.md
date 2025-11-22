@@ -91,5 +91,5 @@ Enter: place ship
   - [ ] Better visual indicators/icons
   - [ ] Enhanced status messages
   - [ ] Game state animations
-  - [ ] Sound effects (optional)
+  - [ ] Sound effects
 - [ ] Connection restoration logic
