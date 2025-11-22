@@ -98,7 +98,6 @@ preparation:
 		}
 	}
 
-	b.g.sendInitiative()
 	go func(ctx context.Context) {
 		buf := make([]byte, 8)
 		for {
@@ -126,6 +125,7 @@ preparation:
 
 	draw(b.g)
 	b.logger.Debug("Start initiative")
+	b.g.sendInitiative()
 initiative:
 	for {
 		select {
@@ -136,6 +136,11 @@ initiative:
 			b.logger.Debug("handled initiative message")
 			if done {
 				break initiative
+			}
+			// drain outgoing channel so that new initiative message is sent out
+			select {
+			case <-outgoingMessages:
+			default:
 			}
 			b.g.sendInitiative()
 		case m := <-outgoingMessages:
